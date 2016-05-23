@@ -9,6 +9,9 @@
 - [Coletando TAM](#coletando-tam)
   - Funções
   - Execução
+- [Coletando GOL](#coletando-gol)
+  - Funções
+  - Execução
 
 <br />
 <br />
@@ -16,10 +19,9 @@
 
 ##Coletando TAM
 
-
-O código usado para coletar automáticamente preços de passagens na TAM (LATAM) depende fortemente do pacote RSelenium para automatização do Browser. Para entender como funciona o RSelenium, sugere-se a leitura deste tutorial: [How to drive a Web browser with R (and RSelenium)][1]. Outra boa fonte para aprender a usar o RSelenium são as *vignettes* disponíveis no CRAN do pacote: [RSelenium][2]. As funções que o RSelenium desempenha no programa são: 1) pegar o texto bruto das tabelas de viagens na TAM e 2) pegar a taxa de embarque das viagens.  
+O código usado para coletar automaticamente preços de passagens na TAM (LATAM) depende fortemente do pacote RSelenium para automatização do Browser. Para entender como funciona o RSelenium, sugere-se a leitura deste tutorial: [How to drive a Web browser with R (and RSelenium)][1]. Outra boa fonte para aprender a usar o RSelenium são as *vignettes* disponíveis no CRAN do pacote: [RSelenium][2]. As funções que o RSelenium desempenha no programa são: 1) pegar o texto bruto das tabelas de viagens na TAM e 2) pegar a taxa de embarque das viagens.  
   
-Uma vez que tenhamos o texto bruto da tabela, o resto do programa trabalha para limpá-lo, extraindo apenas os preços dos vôos diretos. Essa parte dempende de manipulação de texto e da capacidade de identificar padrões no texto (como siglras aeroportuárias BSB, GRU, GIG). Para entender como isso é feito, é preciso ter uma noção básica nos metacaracteres do R. A 4º semana do MOOC em *Data Cleaning* da Johns Hopkins University, disponível no Coursera, fornece uma boa base em como lidar com textos no R. Em especial, recomenda-se as aulas [3][3] e [4][4] da semana.  
+Uma vez que tenhamos o texto bruto da tabela, o resto do programa trabalha para limpá-lo, extraindo apenas os preços dos voos diretos. Essa parte depende de manipulação de texto e da capacidade de identificar padrões no texto (como siglas aeroportuárias BSB, GRU, GIG). Para entender como isso é feito, é preciso ter uma noção básica nos metacaracteres do R. A 4º semana do MOOC em *Data Cleaning* da Johns Hopkins University, disponível no Coursera, fornece uma boa base em como lidar com textos no R. Em especial, recomenda-se as aulas [3][3] e [4][4] da semana.  
   
 Por fim, caso você não tenha nenhum conhecimento em R, sugere-se ver os vídeos das duas primeiras semanas do curso [R-programming][5], da Johns Hopkins University, também disponível no Coursera.
 
@@ -31,16 +33,16 @@ Por fim, caso você não tenha nenhum conhecimento em R, sugere-se ver os vídeo
   
 <br />
 
-###**Funções:**  
+###Funções:  
 ####1. `getDadosTAM(origem, dataIda, destino, dataVolta)`:  
 A função coleta os dados em formato bruto no site da TAM e devolve uma lista com dois elementos.
-O primeiro é o texto bruto da tabela das viágens. O segundo elemento é a taxa de embarque.  
+O primeiro é o texto bruto da tabela das viagens. O segundo elemento é a taxa de embarque.  
 OBS: Infelizmente, a função só funciona se o browser ficar aberto na tela.  
   
 **Argumentos:**  
   * *origem*: a cidade de saída no site da TAM, dado pelo código do aeroporto (e.g BSB) ou pelo nome da cidade (e.g. Brasília).  
   * *dataIda*: a data de ida da viagem, no formato "dd/mm/aaaa".  
-  * *destino*: a cidade de chegada no site da TAM, dado pelo códgio do aeroporto (e.g BSB) ou pelo nome da cidade (e.g. Brasília).  
+  * *destino*: a cidade de chegada no site da TAM, dado pelo código do aeroporto (e.g BSB) ou pelo nome da cidade (e.g. Brasília).  
   * *dataVolta*: a data de volta da viagem, no formato "dd/mm/aaaa".  
   
 ####2.`getTamDirectPrice(textobruto)`:  
@@ -56,19 +58,117 @@ A função cria uma tabela de coleta de preços da cidade.
   * *cidade*: a cidade deve ser uma lista, em que o primeiro elemento é a cidade destino e o segundo, um vetor com as cidades de origem.  
   * *ida*: a data de ida da viagem, no formato "dd/mm/aaaa".  
   * *volta*: a data de volta da viagem, no formato "dd/mm/aaaa".  
-  * *n*: O número de linas da tabela. Ele deve ser maior que o maior vetor de preços coletado, caso contrário, haverá um erro.   
+  * *n*: O número de linhas da tabela. Ele deve ser maior que o maior vetor de preços coletado, caso contrário, haverá um erro.   
   
 ####4.`coletarTudo(cidades, ida, volta, n = 60)`:   
-A função cria um documento excel em que cada aba é a coleta de preços de passagens de uma cidade, efetuada por `coletar()`.  
+A função cria um documento Excel em que cada aba é a coleta de preços de passagens de uma cidade, efetuada por `coletar()`.  
   
 **Argumentos:**  
   * *cidades*: uma lista de cidades para realizar a coleta.  
   * *ida*: a data de ida da viagem, no formato "dd/mm/aaaa".  
   * *volta*: a data de volta da viagem, no formato "dd/mm/aaaa".  
-  * *n*: O número de linas da tabela. Ele deve ser maior que o maior vetor de preços coletado, caso contrário, haverá um erro.  
+  * *n*: O número de linhas da tabela. Ele deve ser maior que o maior vetor de preços coletado, caso contrário, haverá um erro.  
   
-###**Execução:**   
+###Execução:   
 Primeiramente, criamos as cidades cujos preços das viagens devem ser coletados.
 Depois criamos as listas de cidade sob responsabilidade de cada pessoa. Em seguida, criamos as datas de ida e volta das viagens.
-Por fim, realizamos as coletas e salvamos os documentos excel criados no working directory (wd) do R.
+Por fim, realizamos as coletas e salvamos os documentos Excel criados no working directory (wd) do R.
+
+<br />
+<br />
+<br />
+
+##Coletando GOL
+
+O código usado para coletar automaticamente preços de passagens na GOL depende fortemente do pacote RSelenium para automatização do Browser. Para entender como funciona o RSelenium, sugere-se a leitura deste tutorial: [How to drive a Web browser with R (and RSelenium)][1]. Outra boa fonte para aprender a usar o RSelenium são as *vignettes* disponíveis no CRAN do pacote: [RSelenium][2].  Os papeis do Rselenium no código é realizar a pesquisa das viagens na GOL e coletar o código fonte da página em HTML.  
+  
+Uma vez que tenhamos o código fonte da página, o resto do programa trabalha para identificar o que no HTML são preços de voos diretos. É importante ressaltar que a coleta na GOL é feita com programação em uma linguagem de baixo nível, se comparada com a linguagem utilizada na coleta de preços na TAM. Por um lado, isso diminui a quantidade de abstração, tornando o código compreensível por qualquer um com nível básico em programação, por outro, torna o código mais extenso, com várias funções auxiliares e loops. Para entender melhor como funciona o programa, sugere-se a lição 1 do curso [CS101][6], da Udacity, na qual se ensina como achar links no código fonte de páginas (a lição é em Pyhton, mas pode ser facilmente traduzida para R).
+  
+Por fim, caso você não tenha nenhum conhecimento em R, sugere-se ver os vídeos das duas primeiras semanas do curso [R-programming][5], da Johns Hopkins University, também disponível no Coursera.  
+  
+OBS: Embora o código se fundamente na leitura de um texto em HTML, não é preciso ter conhecimento nessa linguagem para utilizá-lo ou entendê-lo
+
+[6]: https://classroom.udacity.com/courses/cs101/lessons/
+
+<br />
+
+###Funções:  
+####1. `getPageGol(origem, dataIda, destino, dataVolta)`:  
+A função realiza a pesquisa da viagem e coleta o código fonte da página referente a essa viagem.  
+  
+**Argumentos:**  
+  * *origem*: a cidade de saída no site da GOL, dado pelo código do aeroporto (e.g BSB) ou pelo nome da cidade (e.g. Brasília).  
+  * *dataIda*: a data de ida da viagem, no formato "dd/mm/aaaa".  
+  * *destino*: a cidade de chegada no site da GOL, dado pelo código do aeroporto (e.g BSB) ou pelo nome da cidade (e.g. Brasília).  
+  * *dataVolta*: a data de volta da viagem, no formato "dd/mm/aaaa".  
+  
+
+####2.`getNextVDs`:  
+Dado o código fonte da página, a função pega o próximo código que contenha o voo direto.  
+  
+**Argumentos:**  
+  * *page*: o código fonte da página da viagem na GOL em formato texto HTML.  
+  
+
+####3.`getAllVDs`:  
+A função é uma aplicação iterativa de `getNextVDs`, que vai escaneando a página em HTML e pegando todos os códigos que contenham voos diretos.  
+  
+**Argumentos:**  
+  * *page*: o código fonte da página da viagem na GOL em formato texto HTML.  
+  
+
+####4.`getNextPrice`:  
+Dado o código fonte da página, a função pega o próximo código que contenha um preço de passagem.  
+  
+**Argumentos:**  
+  * *page*: o código fonte da página da viagem na GOL em formato texto HTML.  
+  
+
+####5.`getNextTax`:  
+Dado o código fonte da página, a função pega o próximo código que contenha uma taxa de passagem.  
+  
+**Argumentos:**  
+  * *page*: o código fonte da página da viagem na GOL em formato texto HTML.  
+  
+
+####6.`getAllCosts`:  
+A função é uma aplicação iterativa de `getAllVDs`, `getNextPrice`, `getNextTax` que extrai do HTML da página apenas os voos diretos e em seguda, no código dos voos diretos, extrai os preços e as taxas das viagens.  
+  
+**Argumentos:**  
+  * *page*: o código fonte da página da viagem na GOL em formato texto HTML.  
+  
+
+####7.`coletar`:  
+A função é uma aplicação iterativa de `getAllCosts`. Para cada cidade origem de uma cidade destino passada, a função extrai os custos e a média das taxas de embarque e formata em uma tabela (**data frame**).  
+  
+**Argumentos:**  
+  * *cidade*: a cidade deve ser uma lista, em que o primeiro elemento é a cidade destino e o segundo, um vetor com as cidades de origem.  
+  * *ida*: a data de ida da viagem, no formato "dd/mm/aaaa".  
+  * *volta*: a data de volta da viagem, no formato "dd/mm/aaaa".  
+  * *n*: O número de linhas da tabela. Ele deve ser maior que o maior vetor de preços coletado, caso contrário, haverá um erro.  
+  
+
+####8.`coletarTudo(cidades, ida, volta, n = 60)`:   
+A função é uma aplicação iterativa de `coletar`. Cria um documento Excel em que cada aba é a coleta de preços de passagens de uma cidade, efetuada por `coletar()`.  
+  
+**Argumentos:**  
+  * *cidades*: uma lista de cidades para realizar a coleta.  
+  * *ida*: a data de ida da viagem, no formato "dd/mm/aaaa".  
+  * *volta*: a data de volta da viagem, no formato "dd/mm/aaaa".  
+  * *n*: O número de linhas da tabela. Ele deve ser maior que o maior vetor de preços coletado, caso contrário, haverá um erro.  
+  
+
+###Execução:   
+Primeiramente, criamos as cidades cujos preços das viagens devem ser coletados.
+Depois criamos as listas de cidade sob responsabilidade de cada pessoa. Em seguida, criamos as datas de ida e volta das viagens.
+Por fim, realizamos as coletas e salvamos os documentos Excel criados no working directory (wd) do R.
+
+<br />
+<br />
+<br />
+
+
+
+  
+
 
