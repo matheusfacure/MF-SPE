@@ -72,7 +72,7 @@ A função cria um documento Excel em que cada aba é a coleta de preços de pas
 ###Execução:   
 Primeiramente, criamos as cidades cujos preços das viagens devem ser coletados.
 Depois criamos as listas de cidade sob responsabilidade de cada pessoa. Em seguida, criamos as datas de ida e volta das viagens.
-Por fim, realizamos as coletas e salvamos os documentos Excel criados no **working directory** (wd) do R.
+Por fim, realizamos as coletas e salvamos os documentos Excel criados no *working directory* (wd) do R.
 
 <br />
 <br />
@@ -161,7 +161,7 @@ A função é uma aplicação iterativa de `coletar`. Cria um documento Excel em
 ###Execução:   
 Primeiramente, criamos as cidades cujos preços das viagens devem ser coletados.
 Depois criamos as listas de cidade sob responsabilidade de cada pessoa. Em seguida, criamos as datas de ida e volta das viagens.
-Por fim, realizamos as coletas e salvamos os documentos Excel criados no **working directory** (wd) do R.
+Por fim, realizamos as coletas e salvamos os documentos Excel criados no *working directory* (wd) do R.
 
 <br />
 <br />
