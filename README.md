@@ -38,34 +38,34 @@ O primeiro é o texto bruto da tabela das viágens. O segundo elemento é a taxa
 OBS: Infelizmente, a função só funciona se o browser ficar aberto na tela.  
   
 **Argumentos:**  
-*origem*: a cidade de saída no site da TAM, dado pelo código do aeroporto (e.g BSB) ou pelo nome da cidade (e.g. Brasília).<br />
-*dataIda*: a data de ida da viagem, no formato "dd/mm/aaaa".  
-*destino*: a cidade de chegada no site da TAM, dado pelo códgio do aeroporto (e.g BSB) ou pelo nome da cidade (e.g. Brasília).<br />
-*dataVolta*: a data de volta da viagem, no formato "dd/mm/aaaa".  
+  * *origem*: a cidade de saída no site da TAM, dado pelo código do aeroporto (e.g BSB) ou pelo nome da cidade (e.g. Brasília).  
+  * *dataIda*: a data de ida da viagem, no formato "dd/mm/aaaa".  
+  * *destino*: a cidade de chegada no site da TAM, dado pelo códgio do aeroporto (e.g BSB) ou pelo nome da cidade (e.g. Brasília).  
+  * *dataVolta*: a data de volta da viagem, no formato "dd/mm/aaaa".  
   
 ####2.`getTamDirectPrice(textobruto)`:  
 A função pega o texto bruto da tabela de viagens, filtra apenas o voos diretos e limpa o texto para retornar apenas o valores dos preços.  
   
 **Argumentos:**  
-*textobruto*: O texto bruto das tabelas de viagens. É o primeiro elemento retornado por `getDadosTAM()`.  
+  * *textobruto*: O texto bruto das tabelas de viagens. É o primeiro elemento retornado por `getDadosTAM()`.  
   
 ####3.`coletar(cidade, ida, volta, n = 60)`:   
 A função cria uma tabela de coleta de preços da cidade.  
   
 **Argumentos:**  
-*cidade*: a cidade deve ser uma lista, em que o primeiro elemento é a cidade destino e o segundo, um vetor com as cidades de origem.  
-*ida*: a data de ida da viagem, no formato "dd/mm/aaaa".  
-*volta*: a data de volta da viagem, no formato "dd/mm/aaaa".  
-*n*: O número de linas da tabela. Ele deve ser maior que o maior vetor de preços coletado, caso contrário, haverá um erro.   
+  * *cidade*: a cidade deve ser uma lista, em que o primeiro elemento é a cidade destino e o segundo, um vetor com as cidades de origem.  
+  * *ida*: a data de ida da viagem, no formato "dd/mm/aaaa".  
+  * *volta*: a data de volta da viagem, no formato "dd/mm/aaaa".  
+  * *n*: O número de linas da tabela. Ele deve ser maior que o maior vetor de preços coletado, caso contrário, haverá um erro.   
   
 ####4.`coletarTudo(cidades, ida, volta, n = 60)`:   
 A função cria um documento excel em que cada aba é a coleta de preços de passagens de uma cidade, efetuada por `coletar()`.  
   
 **Argumentos:**  
-*cidades*: uma lista de cidades para realizar a coleta.  
-*ida*: a data de ida da viagem, no formato "dd/mm/aaaa".  
-*volta*: a data de volta da viagem, no formato "dd/mm/aaaa".  
-*n*: O número de linas da tabela. Ele deve ser maior que o maior vetor de preços coletado, caso contrário, haverá um erro.  
+  * *cidades*: uma lista de cidades para realizar a coleta.  
+  * *ida*: a data de ida da viagem, no formato "dd/mm/aaaa".  
+  * *volta*: a data de volta da viagem, no formato "dd/mm/aaaa".  
+  * *n*: O número de linas da tabela. Ele deve ser maior que o maior vetor de preços coletado, caso contrário, haverá um erro.  
   
 ###**Execução:**   
 Primeiramente, criamos as cidades cujos preços das viagens devem ser coletados.
