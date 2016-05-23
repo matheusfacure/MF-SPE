@@ -2,7 +2,7 @@
 <p align="center">
   Códigos em R usados pelos estagiários da Secretaria de Política Econômica do Ministério da Fazenda
 </p>
-
+<br />
 
 ## Conteúdo
 
@@ -72,7 +72,7 @@ A função cria um documento Excel em que cada aba é a coleta de preços de pas
 ###Execução:   
 Primeiramente, criamos as cidades cujos preços das viagens devem ser coletados.
 Depois criamos as listas de cidade sob responsabilidade de cada pessoa. Em seguida, criamos as datas de ida e volta das viagens.
-Por fim, realizamos as coletas e salvamos os documentos Excel criados no working directory (wd) do R.
+Por fim, realizamos as coletas e salvamos os documentos Excel criados no **working directory** (wd) do R.
 
 <br />
 <br />
@@ -88,7 +88,7 @@ Por fim, caso você não tenha nenhum conhecimento em R, sugere-se ver os vídeo
   
 OBS: Embora o código se fundamente na leitura de um texto em HTML, não é preciso ter conhecimento nessa linguagem para utilizá-lo ou entendê-lo
 
-[6]: https://classroom.udacity.com/courses/cs101/lessons/
+[6]: https://classroom.udacity.com/courses/cs101
 
 <br />
 
@@ -132,7 +132,7 @@ Dado o código fonte da página, a função pega o próximo código que contenha
   
 
 ####6.`getAllCosts`:  
-A função é uma aplicação iterativa de `getAllVDs`, `getNextPrice`, `getNextTax` que extrai do HTML da página apenas os voos diretos e em seguda, no código dos voos diretos, extrai os preços e as taxas das viagens.  
+A função é uma aplicação iterativa de `getAllVDs`, `getNextPrice`, `getNextTax` que extrai do HTML da página apenas os voos diretos e em seguida, no código dos voos diretos, extrai os preços e as taxas das viagens.  
   
 **Argumentos:**  
   * *page*: o código fonte da página da viagem na GOL em formato texto HTML.  
@@ -161,7 +161,7 @@ A função é uma aplicação iterativa de `coletar`. Cria um documento Excel em
 ###Execução:   
 Primeiramente, criamos as cidades cujos preços das viagens devem ser coletados.
 Depois criamos as listas de cidade sob responsabilidade de cada pessoa. Em seguida, criamos as datas de ida e volta das viagens.
-Por fim, realizamos as coletas e salvamos os documentos Excel criados no working directory (wd) do R.
+Por fim, realizamos as coletas e salvamos os documentos Excel criados no **working directory** (wd) do R.
 
 <br />
 <br />
