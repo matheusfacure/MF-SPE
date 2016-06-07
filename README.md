@@ -9,9 +9,11 @@
 - [Coletando TAM](#coletando-tam)
   - Funções
   - Execução
+  - Instruções de uso
 - [Coletando GOL](#coletando-gol)
   - Funções
   - Execução
+  - Instruções de uso
 
 <br />
 <br />
@@ -25,11 +27,6 @@ Uma vez que tenhamos o texto bruto da tabela, o resto do programa trabalha para 
   
 Por fim, caso você não tenha nenhum conhecimento em R, sugere-se ver os vídeos das duas primeiras semanas do curso [R-programming][5], da Johns Hopkins University, também disponível no Coursera.
 
-[1]: http://www.computerworld.com/article/2971265/application-development/how-to-drive-a-web-browser-with-r-and-rselenium.html
-[2]: https://cran.rstudio.com/web/packages/RSelenium/
-[3]: https://d3c33hcgiwev3.cloudfront.net/_b3fbe6648dadbb7be034ad5fb60fe438_04_02_regularExpressions.pdf?Expires=1463788800&Signature=OfL0JyB~mg6lY~wujE3ZCVGHZ2ubjLPFs8-aSSCgOy9M8~6I9LRVhvd-wUibfCJvJY-b6dJDOa5lGtJLCqMY62Z43dffRDv1vwTk-Xwc6XBr29Kc~tEhVECz7kfJPj5AUX6ByOW~Tm2JpSsRj~io~ohfp80EYt7cJKAhzpGAIaE_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A
-[4]: https://d3c33hcgiwev3.cloudfront.net/_e8959793d0eb07f2390ff487700daf5f_04_03_regularExpressionsII.pdf?Expires=1463788800&Signature=Cl-JQ3u-93Spipah1Spjvy1TuhXdw-OE9uTABIlYXOpJGsVNtlmK7RIae0xD2GpWTgrMB2qM64oHxfoDnTI0e73mKsyEeamd4yBxOH91~0445bZOqjhTNmrBiX~DmqQYyTMqJ0q1MNop0MjCrAz89M1jnMupHeX3JcWjcKL06x4_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A
-[5]: https://www.coursera.org/learn/r-programming/home/welcome
   
 <br />
 
@@ -72,7 +69,17 @@ A função cria um documento Excel em que cada aba é a coleta de preços de pas
 ###Execução:   
 Primeiramente, criamos as cidades cujos preços das viagens devem ser coletados.
 Depois criamos as listas de cidade sob responsabilidade de cada pessoa. Em seguida, criamos as datas de ida e volta das viagens.
-Por fim, realizamos as coletas e salvamos os documentos Excel criados no *working directory* (wd) do R.
+Por fim, realizamos as coletas e salvamos os documentos Excel criados no *working directory* (wd) do R.  
+  
+###Instruções de Uso:
+Este tutorial pressupões que você tenha instalado no seu computador [(R)][7] (no mínimo versão 3.0.2), [RStudio][8], [Java][9] e [Firefox][11]. Além disso, pressupomos que você tenha o [Selenium Standalone Server][10] no seu *working directory*.
+
+1. Abra o RStudio e crie um novo sript de R (Ctrl + Shift + N). Copie o código do arquivo Coletando_TAM.R no script recém criado.
+2. Na linha 5, substitua o caminho pelo do seu *working directory*. Nas linhas 147 e i48, substitua as datas pelas datas de ida e volta pelas de seu interesse.
+3. Rode o programa da linha 1 à linha 152. Para isso, selecione essas linhas com o mouse e aperte Ctrl + Enter.
+4. As coletas de cada pessoa estão nas linhas 154 à 164. Recomenda-se fortemente rodar cada uma das coletas separadamente. Selecione as linhas da coleta e aperte Ctrl+Enter para rodar. Repita para as 4 coletas. Observação: é preciso que o computador fique aberto na página do Firefox em que a coleta esteja sendo feita, portanto o computador ficará indisponível enquanto a coleta estiver sendo feita. Caso a página seja minimizada ou fechada antes da coleta acabar, feche o RStudio e recomece do passo 1.
+5. (Opcional) Caso deseja saber o tempo que demorou a coleta, seleciona as linhas 166 à 168 é aperte Ctrl+Enter.
+6. Abra os documentos excel criados e converta os preços de texto para numérico. 
 
 <br />
 <br />
@@ -88,7 +95,7 @@ Por fim, caso você não tenha nenhum conhecimento em R, sugere-se ver os vídeo
   
 OBS: Embora o código se fundamente na leitura de um texto em HTML, não é preciso ter conhecimento nessa linguagem para utilizá-lo ou entendê-lo
 
-[6]: https://classroom.udacity.com/courses/cs101
+
 
 <br />
 
@@ -161,7 +168,23 @@ A função é uma aplicação iterativa de `coletar`. Cria um documento Excel em
 ###Execução:   
 Primeiramente, criamos as cidades cujos preços das viagens devem ser coletados.
 Depois criamos as listas de cidade sob responsabilidade de cada pessoa. Em seguida, criamos as datas de ida e volta das viagens.
-Por fim, realizamos as coletas e salvamos os documentos Excel criados no *working directory* (wd) do R.
+Por fim, realizamos as coletas e salvamos os documentos Excel criados no *working directory* (wd) do R.  
+  
+  
+###Instruções de Uso:
+Este tutorial pressupões que você tenha instalado no seu computador [(R)][7] (no mínimo versão 3.0.2), [RStudio][8], [Java][9] e [Firefox][11]. Além disso, pressupomos que você tenha o [Selenium Standalone Server][10] no seu *working directory*.
+
+1. Abra o RStudio e crie um novo sript de R (Ctrl + Shift + N). Copie o código do arquivo Coletando_GOL.R no script recém criado.
+2. Na linha 6, substitua o caminho pelo do seu *working directory*. Nas linhas 169 e 260, substitua as datas pelas datas de ida e volta pelas de seu interesse.
+3. Rode o programa da linha 1 à linha 265. Para isso, selecione essas linhas com o mouse e aperte Ctrl + Enter.
+4. As coletas de cada pessoa estão nas linhas 267 à 277. Recomenda-se fortemente rodar cada uma das coletas separadamente. Selecione as linhas da coleta e aperte Ctrl+Enter para rodar. Repita para as 4 coletas.
+5. (Opcional) Caso deseja saber o tempo que demorou a coleta, seleciona as linhas 279 à 281 é aperte Ctrl+Enter.
+6. Abra os documentos Excel criados e converta os preços de texto para numérico.
+7. (Eventual) Lidando com pop-ups. Muitos sites apresentam aleatoriamente avisos em pop-ups para seus usuários. Nos casos do site da GOL, já lidamos com esses pop-ups. Caso apareça um novo pop-up não previsto no programa isso irá impedi-lo de rodar normalmente e pode até resultar em um erro. Para lidar com o pop-up imprevisto, no Firefox, clique com o segundo botão do mouse no botão que fecha o pop-up e selecione "Inspecionar Elemento". O código fonte da página será mostrado, com uma linha destacada. Clique nessa linha com o segundo botão do mouse e selecione "Copiar Seletor Único". Na linha 26 do script do R, há uma parte que lida com pop-ups. Embaixo da linha 33, insira as seguintes 3 linhas com o seletor único recém copiado nos locais indicados (entre aspas).
+    `try(popup <- mybrowser$findElement(using = 'css selector', "Aqui o seletor único copiado" ), silent = T)`  
+    `try(popup <- mybrowser$findElement(using = 'css selector', "Aqui o seletor único copiado" ), silent = T)`
+    `try(popup$clickElement(), silent = T)`  
+  Repita os passos de 2 à 6.
 
 <br />
 <br />
@@ -171,4 +194,14 @@ Por fim, realizamos as coletas e salvamos os documentos Excel criados no *workin
 
   
 
-
+[1]: http://www.computerworld.com/article/2971265/application-development/how-to-drive-a-web-browser-with-r-and-rselenium.html
+[2]: https://cran.rstudio.com/web/packages/RSelenium/
+[3]: https://d3c33hcgiwev3.cloudfront.net/_b3fbe6648dadbb7be034ad5fb60fe438_04_02_regularExpressions.pdf?Expires=1463788800&Signature=OfL0JyB~mg6lY~wujE3ZCVGHZ2ubjLPFs8-aSSCgOy9M8~6I9LRVhvd-wUibfCJvJY-b6dJDOa5lGtJLCqMY62Z43dffRDv1vwTk-Xwc6XBr29Kc~tEhVECz7kfJPj5AUX6ByOW~Tm2JpSsRj~io~ohfp80EYt7cJKAhzpGAIaE_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A
+[4]: https://d3c33hcgiwev3.cloudfront.net/_e8959793d0eb07f2390ff487700daf5f_04_03_regularExpressionsII.pdf?Expires=1463788800&Signature=Cl-JQ3u-93Spipah1Spjvy1TuhXdw-OE9uTABIlYXOpJGsVNtlmK7RIae0xD2GpWTgrMB2qM64oHxfoDnTI0e73mKsyEeamd4yBxOH91~0445bZOqjhTNmrBiX~DmqQYyTMqJ0q1MNop0MjCrAz89M1jnMupHeX3JcWjcKL06x4_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A
+[5]: https://www.coursera.org/learn/r-programming/home/welcome
+[6]: https://classroom.udacity.com/courses/cs101
+[7]: http://www.vps.fmvz.usp.br/CRAN/
+[8]: https://www.rstudio.com/products/RStudio/#Desktop
+[9]: https://www.java.com/pt_BR/download/
+[10]: http://www.seleniumhq.org/download/
+[11]: https://www.mozilla.org/pt-BR/firefox/new/
