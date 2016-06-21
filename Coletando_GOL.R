@@ -19,53 +19,45 @@ system("java -jar selenium-server-standalone-2.53.0.jar", wait = FALSE)
 getPageGol <- function(origem,dataIda,destino,dataVolta) {
     #site
     gol <- "http://www.voegol.com.br/"
-    
     #indo na gol
     mybrowser$navigate(gol)
-    
     #lidando com pop-ups. Fazemos sempre duas tentativas para evitar erros por demora de carregamento
-    try(popup <- mybrowser$findElement(using = 'css selector', ".modal-btn-fechar" ), silent = T)
-    try(popup <- mybrowser$findElement(using = 'css selector', ".modal-btn-fechar" ), silent = T)
+    try(popup <- mybrowser$findElement(using = 'css selector', ".encerrar" ), silent = T)
+    try(popup <- mybrowser$findElement(using = 'css selector', ".encerrar" ), silent = T)
     try(popup$clickElement(), silent = T) #popup 1
-    
     try(popup <- mybrowser$findElement(using = 'css selector', ".fsrDeclineButton" ), silent = T)
     try(popup <- mybrowser$findElement(using = 'css selector', ".fsrDeclineButton" ), silent = T)
     try(popup$clickElement(), silent = T) #popup 2
-    
     OrigemG <- mybrowser$findElement(using = 'css selector', "#ctl00_PlaceHolderMain_origem" )
     DestinoG <- mybrowser$findElement(using = 'css selector', "#ctl00_PlaceHolderMain_para")
     dataSaidaG <- mybrowser$findElement(using = 'css selector', "#ida")
-    dataVoltaG <- mybrowser$findElement(using = 'css selector', "#volta" )
+    dataVoltaG <- mybrowser$findElement(using = 'css selector', "#volta")
     adultosframe <- mybrowser$findElement(using = 'id', "adultos")
-    
     #pesquisando viagem
-    OrigemG$clearElement()#limpando elemento
+    try(OrigemG$clearElement(), silent = T)#limpando elemento
+    try(OrigemG$clearElement(), silent = T)#limpando elemento
     OrigemG$sendKeysToElement(list(origem)) #escolhendo origem
     autoCompOrigem <- mybrowser$findElement(using = 'css selector',"#autocomplete-de strong" )
     autoCompOrigem$clickElement()
-    
     DestinoG$clearElement()#limpando elemento
     DestinoG$sendKeysToElement(list(destino)) #escolhendo destino
     autoCompDest <- mybrowser$findElement(using = 'css selector',"#autocomplete-para strong" )
     autoCompDest$clickElement()
-    
     dataSaidaG$clearElement()#limpando elemento
     dataSaidaG$sendKeysToElement(list(dataIda)) #escolhendo data de saída
-    
     dataVoltaG$clearElement()#limpando elemento
     dataVoltaG$sendKeysToElement(list(dataVolta)) #escolhendo data de volta
-    
     adultosframe$clickElement()
     adultosframe$sendKeysToElement(list( key = "up_arrow" )) #limpando elemento
     adultosframe$sendKeysToElement(list( key = "down_arrow" )) #escolhendo 1 adulto
+
     
     botaoIrG <- mybrowser$findElement(using = 'css selector', "#bt-disparo")
     botaoIrG$clickElement()
-    
+    try(mybrowser$acceptAlert(), silent = T)
     #recolhendo código fonte da página
     page <- mybrowser$getPageSource(header = TRUE)
     page <- page[[1]]
-    
     return(invisible(page))
   
 }
@@ -256,8 +248,8 @@ saopaulo <- list("GRU", c("GIG", "POA", "CNF", "REC", "BSB", "Belem", "Fortaleza
 vicente <- list(saopaulo)
 
 #datas
-ida <- "23/07/2016"
-volta <- "31/07/2016"
+ida <- "20/08/2016"
+volta <- "28/08/2016"
 
 
 #salvando excel e testando o tempo do procedimento
