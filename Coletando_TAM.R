@@ -124,7 +124,7 @@ coletarTudo <- function(cidades, ida, volta, n = 60){
 
 #Matheus
 salvador <- list("SSA", c("GIG","CNF", "REC", "GRU", "BSB", "Fortaleza", "VIX"))
-natal <- list("Natal", c("GIG", "GRU", "Fortaleza", "SSA"))
+natal <- list("Natal", c("GIG", "GRU", "BSB", "Fortaleza", "SSA"))
 manaus <- list("MAO", c("GIG", "GRU", "BSB", "Belem"))
 matheus <- list(salvador, natal, manaus)
 
@@ -144,8 +144,8 @@ saopaulo <- list("GRU", c("GIG", "POA", "CNF", "REC", "BSB", "Belem", "Fortaleza
 vicente <- list(saopaulo)
 
 #datas da coleta
-ida <- "16/07/2016"
-volta <- "24/07/2016"
+ida <- "27/08/2016"
+volta <- "04/09/2016"
 
 
 

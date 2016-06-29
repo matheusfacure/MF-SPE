@@ -248,8 +248,8 @@ saopaulo <- list("GRU", c("GIG", "POA", "CNF", "REC", "BSB", "Belem", "Fortaleza
 vicente <- list(saopaulo)
 
 #datas
-ida <- "20/08/2016"
-volta <- "28/08/2016"
+ida <- "27/08/2016"
+volta <- "04/09/2016"
 
 
 #salvando excel e testando o tempo do procedimento
