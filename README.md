@@ -1,6 +1,6 @@
 <h1 align="center">MF-SPE</h1>
 <p align="center">
-  Códigos em R usados pelos estagiários da Secretaria de Política Econômica do Ministério da Fazenda
+  Códigos de web scraping da Secretaria de Política Econômica do Ministério da Fazenda, Modelagem Macro
 </p>
 <br />
 
