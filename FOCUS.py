@@ -37,7 +37,7 @@ def MPAnual(anos):
 	dataInicial = driver.find_element_by_css_selector('#tfDataFinal2')
 	dataInicial.send_keys(time.strftime("%d/%m/%Y"))
 	
-	#Seleciona começo e fim da séria (ano atual e próximo)
+	#Seleciona começo e fim da série (ano atual e próximo)
 	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
 		'tr > td:nth-child(2) > select', anos[0])
 	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
@@ -47,18 +47,20 @@ def MPAnual(anos):
 	#Seleções personalizadas
 	for ind in indicadores:
 		for calc in calculos:
-		
+
 			driver.find_element_by_css_selector(ind).click()
 			select('#calculo', calc)
+			if ind == '#opcoesd_3': #se o indicador for o câmbio
+				select('#tipoDeTaxa', 'Fim de ano') #seleciona taxa fim de ano			
 			driver.find_element_by_css_selector('#btnConsultar8').click()
 
-			time.sleep(2)
+			time.sleep(1)
 			
 			#Implementar funçao de extrair a série
 			source = driver.page_source
 			
 			driver.back()
-			time.sleep(2)
+			time.sleep(1)
 
 
 #Execução
