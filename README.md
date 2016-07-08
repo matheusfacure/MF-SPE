@@ -1,6 +1,6 @@
-<h1 align="center">MF-SPE</h1>
+<h1 align="center"></h1>
 <p align="center">
-  Códigos de web scraping da Secretaria de Política Econômica do Ministério da Fazenda, Modelagem Macro
+  Códigos de web scraping 
 </p>
 <br />
 
