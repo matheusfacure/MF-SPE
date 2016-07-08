@@ -1,5 +1,6 @@
 import datetime
 import time
+import re
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
@@ -11,6 +12,14 @@ def select(indicadorCSS, nome):
 			option.click()
 			break
 	return
+
+def getValues(page):
+	startTable = page.find('var data1= [[')
+	if startTable == -1:
+		return None, 0
+	endTable = page.find('ultima linha em branco', startTable)
+	return re.findall('\d\,\d\d', page[startTable:endTable])
+	   	
 
 def MPAnual(anos):
 	
@@ -58,6 +67,7 @@ def MPAnual(anos):
 			
 			#Implementar funçao de extrair a série
 			source = driver.page_source
+			print(getValues(source))
 			
 			driver.back()
 			time.sleep(1)
