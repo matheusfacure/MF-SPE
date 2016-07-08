@@ -1,6 +1,6 @@
 <h1 align="center"></h1>
 <p align="center">
-  Códigos de web scraping 
+  Códigos de web scraping desenvolvidos durante o estágio no Ministério da Fazenda, Secretaria de Política Econômica.
 </p>
 <br />
 
