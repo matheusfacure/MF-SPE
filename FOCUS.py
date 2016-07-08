@@ -23,8 +23,8 @@ def getValues(page):
 	endTable = page.find('ultima linha em branco', startTable)
 	return re.findall('\d\,\d\d', page[startTable:endTable])
 
-#Seleciona na pagina de pequisa
-def TOP5(ranking, periodicidade, anos):
+#Seleciona na página de pequisa
+def TOP5Select(ranking, periodicidade, anos):
 
 	#seleciona indicadores Top 5
 	select('#indicador', 'Indicadores do Top 5')
@@ -47,10 +47,11 @@ def TOP5(ranking, periodicidade, anos):
 	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
 		'tr > td:nth-child(4) > select', anos[-1])
 
-def TOPMPAnual(anos, ranking, indicadores, calculos):
+#Pega os valores dos indicadores e dos calculos especificados
+def TOP5Scrape(anos, ranking, periodicidade, indicadores, calculos):
 	
 	#Seleçiona primeiros dois anos e ranking Médio Prazo Mensal
-	TOP5(ranking, 'Anual', anos)
+	TOP5Select(ranking, periodicidade, anos)
 
 	#Seleções personalizadas
 	for ind in indicadores:
@@ -66,6 +67,7 @@ def TOPMPAnual(anos, ranking, indicadores, calculos):
 			
 			source = driver.page_source
 			print(getValues(source))
+			#Implementar formatação dos valores em tabela
 			
 			driver.back()
 			time.sleep(1)
@@ -87,12 +89,13 @@ for ano in range(0,5):
 calculos = ['Mínimo', 'Mediana', 'Máximo', 'Média', 'Desvio padrão']
 
 #cria dicinário de indicadores
-indicadores = ['#opcoesd_0','#opcoesd_2','#opcoesd_3']
+indicadores = ['#opcoesd_0','#opcoesd_2','#opcoesd_3'] # IGP-DI, IPCA, Câmbio
 
 
 print(anos)
 
-TOPMPAnual(anos[0:2], 'Médio Prazo Mensal', indicadores, calculos)
-TOPMPAnual(anos[2:], 'Longo Prazo', indicadores, calculos)
+#Anual
+TOP5Scrape(anos[0:2], 'Médio Prazo Mensal', 'Anual', indicadores, calculos)
+TOP5Scrape(anos[2:], 'Longo Prazo', 'Anual', indicadores, calculos)
 
 
