@@ -49,6 +49,8 @@ getPageGol <- function(origem,dataIda,destino,dataVolta) {
     dataVoltaG$sendKeysToElement(list(dataVolta)) #escolhendo data de volta
     adultosframe$clickElement()
     adultosframe$sendKeysToElement(list( key = "up_arrow" )) #limpando elemento
+    adultosframe$sendKeysToElement(list( key = "up_arrow" )) #limpando elemento
+    adultosframe$sendKeysToElement(list( key = "up_arrow" )) #limpando elemento
     adultosframe$sendKeysToElement(list( key = "down_arrow" )) #escolhendo 1 adulto
 
     
