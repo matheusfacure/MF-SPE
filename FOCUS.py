@@ -3,6 +3,7 @@ import time
 import re
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+import pandas as pd
 
 #Funções
 
@@ -22,6 +23,50 @@ def getValues(page):
 		return None, 0
 	endTable = page.find('ultima linha em branco', startTable)
 	return re.findall('\d\,\d\d', page[startTable:endTable])
+
+
+def geralScrapeIPs(IPs, calculos, anos):
+	
+	#Seleções Padrão
+	select('#indicador', 'Índices de preços')
+	select('#periodicidade', 'Anual')
+	dataFinal = driver.find_element_by_css_selector('#tfDataInicial1')
+	dataFinal.send_keys(time.strftime("%d/%m/%Y"))
+	dataInicial = driver.find_element_by_css_selector('#tfDataFinal2')
+	dataInicial.send_keys(time.strftime("%d/%m/%Y"))
+	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
+		'tr > td:nth-child(2) > select', anos[0])
+	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
+		'tr > td:nth-child(4) > select', anos[-1])
+
+	#Prepara dicionários para armazenar valores
+	inDic = {}
+	for ip in IPs:
+		inDic[ip] = {'Anos':anos}
+
+	#scrape
+	for ip in IPs:
+		
+		for calc in calculos:
+			driver.find_element_by_css_selector(IPs[ip]).click()
+			select('#calculo', calc)
+			driver.find_element_by_css_selector('#btnConsultar8').click() # ir
+
+			time.sleep(0.5) #previne bugs por internet lenta
+			source = driver.page_source
+			
+			inDic[ip][calc] = getValues(source) #atualiza dicionário
+
+			driver.back()
+			time.sleep(0.5)
+			driver.find_element_by_css_selector(IPs[ip]).click() #limpa seleção
+			time.sleep(0.5)
+	return inDic
+
+
+
+
+
 
 #Seleciona na página de pequisa
 def TOP5Select(ranking, periodicidade, anos):
@@ -89,6 +134,7 @@ def TOP5Scrape(anos, ranking, periodicidade, indicadores, calculos):
 			time.sleep(1)
 
 
+
 #Execução
 site = "https://www3.bcb.gov.br/expectativas/publico/consulta/serieestatisticas"
 driver = webdriver.Firefox()
@@ -102,17 +148,33 @@ for ano in range(0,5):
 	anos.append(a.strftime('%Y'))
 
 
-#cria lista de cálculos
+#Geral
 calculos = ['Mínimo', 'Mediana', 'Máximo', 'Média', 'Desvio padrão']
 
+#IPs
+IPs = {'IPCA':'#grupoIndicePreco\:opcoes_5',
+	'IGP-DI':'#grupoIndicePreco\:opcoes_0'}
+
+dicionario = geralScrapeIPs(IPs, calculos, anos)
+df = pd.DataFrame(dicionario)
+print(df)
+df.to_csv('teste.csv', sep=';')
+
+
+
+#TOP5
+
+#cria lista de cálculos
+#calculos = ['Mínimo', 'Mediana', 'Máximo', 'Média', 'Desvio padrão']
+
 #cria dicinário de indicadores
-indicadores = {'IGP-DI':['#opcoesd_0', 'IGP-DI']}
+#indicadores = {'IGP-DI':['#opcoesd_0', 'IGP-DI']}
 	#'IPCA':['#opcoesd_2', 'IPCA'],'Câmbio':['#opcoesd_3', 'Câmbio']}
 
-print(anos)
+#print(anos)
 
 #Anual
-TOP5Scrape(anos[0:2], 'Médio Prazo Mensal', 'Anual', indicadores, calculos)
-TOP5Scrape(anos[2:], 'Longo Prazo', 'Anual', indicadores, calculos)
+#TOP5Scrape(anos[0:2], 'Médio Prazo Mensal', 'Anual', indicadores, calculos)
+#TOP5Scrape(anos[2:], 'Longo Prazo', 'Anual', indicadores, calculos)
 
 
