@@ -53,22 +53,38 @@ def TOP5Scrape(anos, ranking, periodicidade, indicadores, calculos):
 	#Seleçiona primeiros dois anos e ranking Médio Prazo Mensal
 	TOP5Select(ranking, periodicidade, anos)
 
+	top5Anual = {} #cria dicinário p/ armazenar indicies
+	
 	#Seleções personalizadas
 	for ind in indicadores:
+
+		if ind not in top5Anual:
+			print(ind)
+			top5Anual[ind] = {} #cria sub-dicionário p/ valores
+
 		for calc in calculos:
 
-			driver.find_element_by_css_selector(ind).click()
-			select('#calculo', calc)
-			if ind == '#opcoesd_3': #se o indicador for o câmbio
+			driver.find_element_by_css_selector(indicadores[ind][0]).click()
+			select('#calculo', calc) #seleciona metodo de cálculo
+			
+			if indicadores[ind][0] == '#opcoesd_3': #se o indicador for o câmbio
 				select('#tipoDeTaxa', 'Fim de ano') #seleciona taxa fim de ano
-			driver.find_element_by_css_selector('#btnConsultar8').click()
+			
+			driver.find_element_by_css_selector('#btnConsultar8').click() # ir
 
 			time.sleep(1) #previne bugs por internet lenta
 			
 			source = driver.page_source
 			print(getValues(source))
-			#Implementar formatação dos valores em tabela
-			
+
+			if calc not in top5Anual[ind]:
+				top5Anual[ind][calc] = getValues(source)
+			else:
+				top5Anual[ind][calc].append(getValues(source))
+
+			print(top5Anual) 
+
+
 			driver.back()
 			time.sleep(1)
 
@@ -85,12 +101,13 @@ for ano in range(0,5):
 	a = atual + datetime.timedelta(days = 366*ano)
 	anos.append(a.strftime('%Y'))
 
+
 #cria lista de cálculos
 calculos = ['Mínimo', 'Mediana', 'Máximo', 'Média', 'Desvio padrão']
 
 #cria dicinário de indicadores
-indicadores = ['#opcoesd_0','#opcoesd_2','#opcoesd_3'] # IGP-DI, IPCA, Câmbio
-
+indicadores = {'IGP-DI':['#opcoesd_0', 'IGP-DI']}
+	#'IPCA':['#opcoesd_2', 'IPCA'],'Câmbio':['#opcoesd_3', 'Câmbio']}
 
 print(anos)
 
