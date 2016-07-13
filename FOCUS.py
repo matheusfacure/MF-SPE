@@ -40,14 +40,16 @@ def geralScrapeIPs(IPs, calculos, anos):
 	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
 		'tr > td:nth-child(4) > select', anos[-1])
 
-	#Prepara dicionários para armazenar valores
-	inDic = {}
-	for ip in IPs:
-		inDic[ip] = {'Anos':anos}
+	#Prepara dicironarios de df
+	dfDic = {}
 
 	#scrape
 	for ip in IPs:
 		
+		#Prepara data frame
+		df = pd.DataFrame(index=anos, columns=calculos)
+		df = df.fillna(0)
+
 		for calc in calculos:
 			driver.find_element_by_css_selector(IPs[ip]).click()
 			select('#calculo', calc)
@@ -56,13 +58,17 @@ def geralScrapeIPs(IPs, calculos, anos):
 			time.sleep(0.5) #previne bugs por internet lenta
 			source = driver.page_source
 			
-			inDic[ip][calc] = getValues(source) #atualiza dicionário
+			df[calc] = getValues(source)
 
 			driver.back()
 			time.sleep(0.5)
 			driver.find_element_by_css_selector(IPs[ip]).click() #limpa seleção
 			time.sleep(0.5)
-	return inDic
+
+		dfDic["df_" + ip] = df.T
+
+	
+	return dfDic
 
 #Pega os valores dos indicadores TOP5 e dos calculos especificados
 def TOP5ScrapeAnual(indicadores, calculos, anos):
@@ -136,9 +142,13 @@ IPs = {'IPCA':'#grupoIndicePreco\:opcoes_5',
 	'IGP-DI':'#grupoIndicePreco\:opcoes_0'}
 
 dicionario = geralScrapeIPs(IPs, calculos, anos)
-df = pd.DataFrame(dicionario)
-print(df)
-df.to_csv('teste.csv', sep=';')
+print(dicionario)
+
+for df in dicionario:
+	df_ip = dicionario[df]
+	arquivo = 'Focus (' + df + ')'
+	df_ip.to_csv(arquivo + ".csv", sep=';', date_format='%Y', index = True)
+
 
 #output para teste
 #dicionarioteste = {'IPCA': {'Mediana': ['7,26', '5,40', '4,71', '4,50', '4,50'], 
