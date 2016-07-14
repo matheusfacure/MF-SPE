@@ -173,9 +173,12 @@ IPs = {'IPCA':'#grupoIndicePreco\:opcoes_5',
 
 #for df in ipsAnual:
 #	df_ip = ipsAnual[df]
-#	arquivo = 'Focus (' + df + ')'
+#	arquivo = 'Focus (' + df + '_Anual)'
 #	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
-ipsMensal = scrapeIPsMensal(IPs, calculos, meses, anos)
-
+ipsMensal = scrapeIPsMensal(IPs, calculos[0:3], meses, anos)
+for df in ipsMensal:
+	df_ip = ipsMensal[df]
+	arquivo = 'Focus (' + df + '_Mensal)'
+	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
