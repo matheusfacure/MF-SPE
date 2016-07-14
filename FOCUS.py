@@ -163,11 +163,16 @@ meses = ['janeiro', 'fevereiro', 'março','abril', 'maio', 'junho', 'julho',
 calculos = ['Mínimo', 'Mediana', 'Máximo', 'Média', 'Desvio padrão']
 
 # cria dicionário de IPs
-IPs = {'IPCA':'#grupoIndicePreco\:opcoes_5',
-	'IGP-DI':'#grupoIndicePreco\:opcoes_0'}
+IPs = {'IGP-DI':'#grupoIndicePreco\:opcoes_0', 
+	'IGP-M':'#grupoIndicePreco\:opcoes_1', 
+	'INPC':'#grupoIndicePreco\:opcoes_2', 
+	'IPA-DI':'#grupoIndicePreco\:opcoes_3',
+	'IPA-M':'#grupoIndicePreco\:opcoes_4',  
+	'IPCA':'#grupoIndicePreco\:opcoes_5', 
+	'IGP-5':'#grupoIndicePreco\:opcoes_6'}
 
 
-#Scrape
+#Scrape 
 
 #ipsAnual = scrapeIPsAnual(IPs, calculos, anos)
 
