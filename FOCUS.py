@@ -23,7 +23,7 @@ def getValues(page):
 	if startTable == -1:
 		return None, 0
 	endTable = page.find('ultima linha em branco', startTable)
-	return re.findall('\d\,\d\d', page[startTable:endTable])
+	return re.findall('-?\d\,\d\d', page[startTable:endTable])
 
 #Pega os valores dos IPs e dos cálculos especificados (Anual)
 def scrapeIPsAnual(IPs, calculos, anos):
