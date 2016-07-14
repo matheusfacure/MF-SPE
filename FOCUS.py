@@ -74,13 +74,76 @@ def scrapeIPsAnual(IPs, calculos, anos):
 	
 	return dfDic
 
+#Pega os valores dos IPs e dos cálculos especificados (Mensal)
+def scrapeIPsMensal(IPs, calculos, meses, anos):
+	
+	#Seleções Padrão
+	select('#indicador', 'Índices de preços')
+	select('#periodicidade', 'Mensal')
+	
+	#Data em que as séries foram feitas
+	dataFinal = driver.find_element_by_css_selector('#tfDataInicial1')
+	dataFinal.send_keys(time.strftime("%d/%m/%Y"))
+	dataInicial = driver.find_element_by_css_selector('#tfDataFinal2')
+	dataInicial.send_keys(time.strftime("%d/%m/%Y"))
+	
+	# cria datas da coleta
+	mesHj = datetime.datetime.now()
+	str(mesHj)
+	mesHj = int(mesHj.month)
+	mesFinal = (mesHj + 18) % 13
+	if(mesFinal < mesHj):
+		anoFinal = 2
+	else:
+		anoFinal = 1
+
+	# seleciona meses e anos
+	select('#form4 > div.centralizado > table > tbody:nth-child(8) > tr >' \
+		'td:nth-child(2) > select:nth-child(2)', anos[0])
+	select('#mesReferenciaInicial', meses[mesHj - 1])
+	select('#form4 > div.centralizado > table > tbody:nth-child(8) > tr >' \
+		'td:nth-child(4) > select:nth-child(2)', anos[anoFinal])
+	select('#mesReferenciaFinal', meses[mesFinal - 1])
 
 
+	#Prepara dicironarios de data frames
+	dfDic = {}
 
+	#prepara colunas das data frames
+	for mes in range(mesHj - 1, mesHj + 17):
+		meses.append(meses[mes % 12])
+
+	#scrape
+	for ip in IPs:
+		
+		
+		df = pd.DataFrame(index = meses[12:], columns = calculos)
+		df = df.fillna(0)
+
+		for calc in calculos:
+			driver.find_element_by_css_selector(IPs[ip]).click()
+			select('#calculo', calc)
+			driver.find_element_by_css_selector('#btnConsultar8').click() # ir
+
+			time.sleep(0.5) #previne bugs por internet lenta
+			source = driver.page_source
+			df[calc] = getValues(source)
+			print(df.T)
+
+			driver.back()
+			time.sleep(0.5)
+			driver.find_element_by_css_selector(IPs[ip]).click() #limpa seleção
+			time.sleep(0.5)
+
+		dfDic[ip] = df.T
+
+
+	return(dfDic)
 
 
 
 #Execução
+
 site = "https://www3.bcb.gov.br/expectativas/publico/consulta/serieestatisticas"
 driver = webdriver.Firefox()
 driver.get(site)
@@ -92,22 +155,19 @@ for ano in range(0,5):
 	a = atual + datetime.timedelta(days = 366*ano)
 	anos.append(a.strftime('%Y'))
 
-hoje = datetime.datetime.now()
-str(hoje)
+# cria lista de meses
 meses = ['janeiro', 'fevereiro', 'março','abril', 'maio', 'junho', 'julho',
 	'agosto', 'setembro', 'outubro', 'novembro', 'dezembro']
-for mes in range(int(hoje.month) - 1, int(hoje.month) + 18):
-	m = mes % 13
-	meses.append(meses[m])
-meses = meses[12:]
 
+# cria lista de cálculos
 calculos = ['Mínimo', 'Mediana', 'Máximo', 'Média', 'Desvio padrão']
 
-#Geral
-
-#IPs
+# cria dicionário de IPs
 IPs = {'IPCA':'#grupoIndicePreco\:opcoes_5',
 	'IGP-DI':'#grupoIndicePreco\:opcoes_0'}
+
+
+#Scrape
 
 #ipsAnual = scrapeIPsAnual(IPs, calculos, anos)
 
@@ -116,6 +176,6 @@ IPs = {'IPCA':'#grupoIndicePreco\:opcoes_5',
 #	arquivo = 'Focus (' + df + ')'
 #	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
-ipsMensal = scrapeIPsMensal(IPs, calculos, meses)
+ipsMensal = scrapeIPsMensal(IPs, calculos, meses, anos)
 
 
