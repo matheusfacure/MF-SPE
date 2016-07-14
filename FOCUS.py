@@ -76,6 +76,10 @@ def scrapeIPsAnual(IPs, calculos, anos):
 
 
 
+
+
+
+
 #Execução
 site = "https://www3.bcb.gov.br/expectativas/publico/consulta/serieestatisticas"
 driver = webdriver.Firefox()
@@ -87,6 +91,15 @@ atual = datetime.datetime.strptime(time.strftime('%m/%d/%Y'), '%m/%d/%Y')
 for ano in range(0,5):
 	a = atual + datetime.timedelta(days = 366*ano)
 	anos.append(a.strftime('%Y'))
+
+hoje = datetime.datetime.now()
+str(hoje)
+meses = ['janeiro', 'fevereiro', 'março','abril', 'maio', 'junho', 'julho',
+	'agosto', 'setembro', 'outubro', 'novembro', 'dezembro']
+for mes in range(int(hoje.month) - 1, int(hoje.month) + 18):
+	m = mes % 13
+	meses.append(meses[m])
+meses = meses[12:]
 
 calculos = ['Mínimo', 'Mediana', 'Máximo', 'Média', 'Desvio padrão']
 
