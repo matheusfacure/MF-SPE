@@ -25,29 +25,33 @@ def getValues(page):
 	endTable = page.find('ultima linha em branco', startTable)
 	return re.findall('\d\,\d\d', page[startTable:endTable])
 
-#Pega os valores dos IPs e dos cálculos especificados
-def geralScrapeIPs(IPs, calculos, anos):
+#Pega os valores dos IPs e dos cálculos especificados (Anual)
+def scrapeIPsAnual(IPs, calculos, anos):
 	
 	#Seleções Padrão
 	select('#indicador', 'Índices de preços')
 	select('#periodicidade', 'Anual')
+
+	#Data em que as séries foram feitas
 	dataFinal = driver.find_element_by_css_selector('#tfDataInicial1')
 	dataFinal.send_keys(time.strftime("%d/%m/%Y"))
 	dataInicial = driver.find_element_by_css_selector('#tfDataFinal2')
+	
+
 	dataInicial.send_keys(time.strftime("%d/%m/%Y"))
 	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
 		'tr > td:nth-child(2) > select', anos[0])
 	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
 		'tr > td:nth-child(4) > select', anos[-1])
 
-	#Prepara dicironarios de df
+	#Prepara dicironarios de data frames
 	dfDic = {}
 
 	#scrape
 	for ip in IPs:
 		
 		#Prepara data frame
-		df = pd.DataFrame(index=anos, columns=calculos)
+		df = pd.DataFrame(index = anos, columns = calculos)
 		df = df.fillna(0)
 
 		for calc in calculos:
@@ -65,59 +69,10 @@ def geralScrapeIPs(IPs, calculos, anos):
 			driver.find_element_by_css_selector(IPs[ip]).click() #limpa seleção
 			time.sleep(0.5)
 
-		dfDic["df_" + ip] = df.T
+		dfDic[ip] = df.T
 
 	
 	return dfDic
-
-#Pega os valores dos indicadores TOP5 e dos calculos especificados
-def TOP5ScrapeAnual(indicadores, calculos, anos):
-	
-	#Seleções Padrão
-	select('#indicador', 'Indicadores do Top 5')
-	select('#periodicidade', 'Anual')
-	dataFinal = driver.find_element_by_css_selector('#tfDataInicial1')
-	dataFinal.send_keys(time.strftime("%d/%m/%Y"))
-	dataInicial = driver.find_element_by_css_selector('#tfDataFinal2')
-	dataInicial.send_keys(time.strftime("%d/%m/%Y"))
-	
-
-	ranking = ['Médio Prazo Mensal', 'Longo Prazo']
-	
-	for rk in ranking:
-		select('#tipoRanking', rk)
-
-		
-		select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
-			'tr > td:nth-child(2) > select', anos[0])
-		select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
-			'tr > td:nth-child(4) > select', anos[1])
-
-
-		for ind in indicadores:
-			driver.find_element_by_css_selector(indicadores[ind]).click()
-			if(ind == "Câmbio"): #Se for a taxa de câmbio, seleciona fim de ano
-				select('#tipoDeTaxa', 'Fim de ano')
-
-			for calc in calculos:
-				select('#calculo', calc)
-				driver.find_element_by_css_selector('#btnConsultar8').click()
-				time.sleep(0.5) #previne bugs por internet lenta
-				source = driver.page_source
-
-				print(getValues(source))
-
-				driver.back()
-				time.sleep(0.5)
-
-
-
-
-
-
-
-
-
 
 
 
@@ -141,34 +96,13 @@ calculos = ['Mínimo', 'Mediana', 'Máximo', 'Média', 'Desvio padrão']
 IPs = {'IPCA':'#grupoIndicePreco\:opcoes_5',
 	'IGP-DI':'#grupoIndicePreco\:opcoes_0'}
 
-dicionario = geralScrapeIPs(IPs, calculos, anos)
-print(dicionario)
+#ipsAnual = scrapeIPsAnual(IPs, calculos, anos)
 
-for df in dicionario:
-	df_ip = dicionario[df]
-	arquivo = 'Focus (' + df + ')'
-	df_ip.to_csv(arquivo + ".csv", sep=';', date_format='%Y', index = True)
+#for df in ipsAnual:
+#	df_ip = ipsAnual[df]
+#	arquivo = 'Focus (' + df + ')'
+#	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
-
-#output para teste
-#dicionarioteste = {'IPCA': {'Mediana': ['7,26', '5,40', '4,71', '4,50', '4,50'], 
-#	'Anos': ['2016', '2017', '2018', '2019', '2020'],
-#	'Média': ['7,27', '5,36', '4,85', '4,66', '4,60'],
-#	'Desvio padrão': ['0,29', '0,47', '0,47', '0,39','0,42'],
-#	'Mínimo': ['6,47', '4,50', '4,00', '3,80', '3,70'],
-#	'Máximo': ['8,27', '7,48', '6,80', '6,00', '6,00']},
-#	'IGP-DI': {'Mediana': ['9,20', '5,57', '5,05', '4,70', '4,55'],
-#	'Anos': ['2016', '2017', '2018', '2019', '2020'],
-#	'Média': ['9,08', '5,57', '5,21', '4,87', '4,79'],
-#	'Desvio padrão': ['0,86', '0,57', '0,61', '0,49', '0,50'],
-#	'Mínimo': ['6,10', '4,20', '4,00', '4,00', '4,00'],
-#	'Máximo': ['0,73', '6,79', '6,80', '6,00', '6,00']}}
+ipsMensal = scrapeIPsMensal(IPs, calculos, meses)
 
 
-#TOP5
-
-#cria dicinário de indicadores
-#indicadores = {'IGP-DI':'#opcoesd_0', 'IPCA':'#opcoesd_2',
-#	'Câmbio':'#opcoesd_3'}
-#
-#TOP5ScrapeAnual(indicadores, calculos, anos)
