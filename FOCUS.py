@@ -8,7 +8,7 @@ import numpy as np
 
 #Funções
 
-#Seleciona o indicador (nome) de uma drop box indicada por seletor único CSS
+# seleciona o indicador (nome) de uma drop box indicada por seletor único CSS
 def select(indicadorCSS, nome):
 	indicador = driver.find_element_by_css_selector(indicadorCSS)
 	for option in indicador.find_elements_by_tag_name('option'):
@@ -17,7 +17,7 @@ def select(indicadorCSS, nome):
 			break
 	return
 
-#pega os valores na tabela da página do bcb
+# pega os valores na tabela da página do bcb
 def getValues(page):
 	startTable = page.find('var data1= [[')
 	if startTable == -1:
@@ -25,14 +25,14 @@ def getValues(page):
 	endTable = page.find('ultima linha em branco', startTable)
 	return re.findall('-?\d\,\d\d', page[startTable:endTable])
 
-#Pega os valores dos IPs e dos cálculos especificados (Anual)
+# pega os valores dos IPs e dos cálculos especificados (Anual)
 def scrapeIPsAnual(IPs, calculos, anos):
 	
-	#Seleções Padrão
+	# seleções Padrão
 	select('#indicador', 'Índices de preços')
 	select('#periodicidade', 'Anual')
 
-	#Data em que as séries foram feitas
+	# data em que as séries foram feitas
 	dataFinal = driver.find_element_by_css_selector('#tfDataInicial1')
 	dataFinal.send_keys(time.strftime("%d/%m/%Y"))
 	dataInicial = driver.find_element_by_css_selector('#tfDataFinal2')
@@ -62,7 +62,13 @@ def scrapeIPsAnual(IPs, calculos, anos):
 			time.sleep(0.5) #previne bugs por internet lenta
 			source = driver.page_source
 			
-			df[calc] = getValues(source)
+			# se o tamanho do vetor de preço e da matriz divergir
+			if(len(df[calc]) > len(anos)):
+				diff = len(df[calc] - len(valueList))
+				for n in range(0, diff):
+					valueList.append(0)
+			else:
+				df[calc] = getValues(source)
 
 			driver.back()
 			time.sleep(0.5)
@@ -125,15 +131,23 @@ def scrapeIPsMensal(IPs, calculos, meses, anos):
 			select('#calculo', calc)
 			driver.find_element_by_css_selector('#btnConsultar8').click() # ir
 
-			time.sleep(0.5) #previne bugs por internet lenta
+			time.sleep(0.7) #previne bugs por internet lenta
+			
 			source = driver.page_source
-			df[calc] = getValues(source)
-			print(df.T)
+			valueList = getValues(source) 
+			
+			# se o tamanho do vetor de preço e da matriz divergir
+			if(len(df[calc]) > len(valueList)):
+				diff = len(df[calc]) - len(valueList)
+				for n in range(0, diff):
+					valueList.append(0)
+			else:
+				df[calc] = valueList
 
 			driver.back()
-			time.sleep(0.5)
+			time.sleep(0.7)
 			driver.find_element_by_css_selector(IPs[ip]).click() #limpa seleção
-			time.sleep(0.5)
+			time.sleep(0.7)
 
 		dfDic[ip] = df.T
 
@@ -169,21 +183,20 @@ IPs = {'IGP-DI':'#grupoIndicePreco\:opcoes_0',
 	'IPA-DI':'#grupoIndicePreco\:opcoes_3',
 	'IPA-M':'#grupoIndicePreco\:opcoes_4',  
 	'IPCA':'#grupoIndicePreco\:opcoes_5', 
-	'IGP-5':'#grupoIndicePreco\:opcoes_6'}
+	'IPCA-15':'#grupoIndicePreco\:opcoes_6'}
 
 
 #Scrape 
 
-#ipsAnual = scrapeIPsAnual(IPs, calculos, anos)
+ipsAnual = scrapeIPsAnual(IPs, calculos, anos)
 
-#for df in ipsAnual:
-#	df_ip = ipsAnual[df]
-#	arquivo = 'Focus (' + df + '_Anual)'
-#	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+for df in ipsAnual:
+	df_ip = ipsAnual[df]
+	arquivo = 'Focus (' + df + '-Anual)'
+	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
 ipsMensal = scrapeIPsMensal(IPs, calculos[0:3], meses, anos)
 for df in ipsMensal:
 	df_ip = ipsMensal[df]
-	arquivo = 'Focus (' + df + '_Mensal)'
+	arquivo = 'Focus (' + df + '-Mensal)'
 	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
-
