@@ -23,12 +23,12 @@ def getValues(page):
 	if startTable == -1:
 		return None, 0
 	endTable = page.find('ultima linha em branco', startTable)
-	return re.findall('-?\d\,\d\d', page[startTable:endTable])
+	return re.findall('-?\d?\d\,\d\d', page[startTable:endTable])
 
 # pega os valores dos IPs e dos cálculos especificados (Anual)
 def scrapeIPsAnual(IPs, calculos, anos):
 	
-	# seleções Padrão
+	# seleções padrão
 	select('#indicador', 'Índices de preços')
 	select('#periodicidade', 'Anual')
 
@@ -44,13 +44,13 @@ def scrapeIPsAnual(IPs, calculos, anos):
 	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
 		'tr > td:nth-child(4) > select', anos[-1])
 
-	#Prepara dicironarios de data frames
+	#  prepara dicironarios de data frames
 	dfDic = {}
 
-	#scrape
+	# scrape
 	for ip in IPs:
 		
-		#Prepara data frame
+		# prepara data frame
 		df = pd.DataFrame(index = anos, columns = calculos)
 		df = df.fillna(0)
 
@@ -80,7 +80,7 @@ def scrapeIPsAnual(IPs, calculos, anos):
 	
 	return dfDic
 
-#Pega os valores dos IPs e dos cálculos especificados (Mensal)
+# pega os valores dos IPs e dos cálculos especificados (Mensal)
 def scrapeIPsMensal(IPs, calculos, meses, anos):
 	
 	#Seleções Padrão
@@ -156,6 +156,7 @@ def scrapeIPsMensal(IPs, calculos, meses, anos):
 
 
 
+
 #Execução
 
 site = "https://www3.bcb.gov.br/expectativas/publico/consulta/serieestatisticas"
@@ -195,8 +196,13 @@ for df in ipsAnual:
 	arquivo = 'Focus (' + df + '-Anual)'
 	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
-ipsMensal = scrapeIPsMensal(IPs, calculos[0:3], meses, anos)
-for df in ipsMensal:
-	df_ip = ipsMensal[df]
-	arquivo = 'Focus (' + df + '-Mensal)'
-	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+#ipsMensal = scrapeIPsMensal(IPs, calculos[0:3], meses, anos)
+#for df in ipsMensal:
+#	df_ip = ipsMensal[df]
+#	arquivo = 'Focus (' + df + '-Mensal)'
+#	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+
+
+
+
+
