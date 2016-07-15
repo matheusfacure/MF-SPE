@@ -36,9 +36,8 @@ def scrapeIPsAnual(IPs, calculos, anos):
 	dataFinal = driver.find_element_by_css_selector('#tfDataInicial1')
 	dataFinal.send_keys(time.strftime("%d/%m/%Y"))
 	dataInicial = driver.find_element_by_css_selector('#tfDataFinal2')
-	
-
 	dataInicial.send_keys(time.strftime("%d/%m/%Y"))
+	
 	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
 		'tr > td:nth-child(2) > select', anos[0])
 	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
@@ -79,6 +78,54 @@ def scrapeIPsAnual(IPs, calculos, anos):
 
 	
 	return dfDic
+
+# pega o valor dos IPs acumulados 12 meses suavizado dados os cálculos
+def scrapeIPsAc12MesesSuav(IPs, calculos):
+	
+	# seleções padrão
+	indicador = 'Inflação acumulada para os próximos 12 meses - suavizada'
+	select('#indicador', indicador)
+	
+	# data em que as séries foram feitas
+	dataFinal = driver.find_element_by_css_selector('#tfDataInicial1')
+	dataFinal.send_keys(time.strftime("%d/%m/%Y"))
+	dataInicial = driver.find_element_by_css_selector('#tfDataFinal2')
+	dataInicial.send_keys(time.strftime("%d/%m/%Y"))
+	
+	# prepara data frame
+	IPsList = []
+	for ip in IPs:
+		IPsList.append(ip)
+
+	df = pd.DataFrame(index = IPsList, columns = calculos)
+	df = df.fillna(0)
+	
+	# scrape
+	for calc in calculos:
+		
+		#inicia lista de cálculos
+		valueList = []
+
+		for ip in IPsList:
+	
+			driver.find_element_by_css_selector(IPs[ip]).click()
+			select('#calculo', calc)
+			driver.find_element_by_css_selector('#btnConsultar8').click() # ir
+			time.sleep(0.7) #previne bugs por internet lenta
+			
+			source = driver.page_source
+			
+			# adiciona valor do IP à lista do cálculo
+			valueList.append(getValues(source)[0])
+
+			driver.back()
+			time.sleep(0.7)
+			driver.find_element_by_css_selector(IPs[ip]).click() #limpa seleção
+			time.sleep(0.7)
+
+		df[calc] = valueList
+	
+	return df.T
 
 # pega os valores dos IPs dados os cálculos especificados (Mensal)
 def scrapeIPsMensal(IPs, calculos, meses, anos):
@@ -165,9 +212,8 @@ def scrapePIBAnual(setores, calculos, anos):
 	dataFinal = driver.find_element_by_css_selector('#tfDataInicial1')
 	dataFinal.send_keys(time.strftime("%d/%m/%Y"))
 	dataInicial = driver.find_element_by_css_selector('#tfDataFinal2')
-	
-
 	dataInicial.send_keys(time.strftime("%d/%m/%Y"))
+	
 	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
 		'tr > td:nth-child(2) > select', anos[0])
 	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
@@ -248,7 +294,6 @@ setores = {'Agropecuaria':'#grupoPib\:opcoes_0',
 #Scrape 
 
 ipsAnual = scrapeIPsAnual(IPs, calculos, anos)
-
 for df in ipsAnual:
 	df_ip = ipsAnual[df]
 	arquivo = 'Focus (' + df + '-Anual)'
@@ -265,3 +310,8 @@ for df in PIBAnual:
 	df_pib = PIBAnual[df]
 	arquivo = 'Focus (PIB-' + df + '-Anual)'
 	df_pib.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+
+
+ac12MesesSuav =  scrapeIPsAc12MesesSuav(IPs, calculos[0:3])
+arquivo = 'Focus (Inflação Ac. 12 meses-Suavizada)'
+ac12MesesSuav.to_csv(arquivo + ".csv", sep = ';', index = True) 
