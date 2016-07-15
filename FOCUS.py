@@ -23,9 +23,9 @@ def getValues(page):
 	if startTable == -1:
 		return None, 0
 	endTable = page.find('ultima linha em branco', startTable)
-	return re.findall('-?\d?\d\,\d\d', page[startTable:endTable])
+	return re.findall('-?\d?\d?\d?\d\,\d\d', page[startTable:endTable])
 
-# pega os valores dos IPs e dos cálculos especificados (Anual)
+# pega os valores dos IPs dados os cálculos especificados (Anual)
 def scrapeIPsAnual(IPs, calculos, anos):
 	
 	# seleções padrão
@@ -59,7 +59,7 @@ def scrapeIPsAnual(IPs, calculos, anos):
 			select('#calculo', calc)
 			driver.find_element_by_css_selector('#btnConsultar8').click() # ir
 
-			time.sleep(0.5) #previne bugs por internet lenta
+			time.sleep(0.7) #previne bugs por internet lenta
 			source = driver.page_source
 			
 			# se o tamanho do vetor de preço e da matriz divergir
@@ -71,16 +71,16 @@ def scrapeIPsAnual(IPs, calculos, anos):
 				df[calc] = getValues(source)
 
 			driver.back()
-			time.sleep(0.5)
+			time.sleep(0.7)
 			driver.find_element_by_css_selector(IPs[ip]).click() #limpa seleção
-			time.sleep(0.5)
+			time.sleep(0.7)
 
 		dfDic[ip] = df.T
 
 	
 	return dfDic
 
-# pega os valores dos IPs e dos cálculos especificados (Mensal)
+# pega os valores dos IPs dados os cálculos especificados (Mensal)
 def scrapeIPsMensal(IPs, calculos, meses, anos):
 	
 	#Seleções Padrão
@@ -154,7 +154,60 @@ def scrapeIPsMensal(IPs, calculos, meses, anos):
 
 	return(dfDic)
 
+# pega os valores dos setores do PIB dados os cálculos especificados (Anual)
+def scrapePIBAnual(setores, calculos, anos):
+	
+	# seleções padrão
+	select('#indicador', 'PIB')
+	select('#periodicidade', 'Anual')
 
+	# data em que as séries foram feitas
+	dataFinal = driver.find_element_by_css_selector('#tfDataInicial1')
+	dataFinal.send_keys(time.strftime("%d/%m/%Y"))
+	dataInicial = driver.find_element_by_css_selector('#tfDataFinal2')
+	
+
+	dataInicial.send_keys(time.strftime("%d/%m/%Y"))
+	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
+		'tr > td:nth-child(2) > select', anos[0])
+	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
+		'tr > td:nth-child(4) > select', anos[-1])
+
+	# prepara dicironarios de data frames
+	dfDic = {}
+
+	# scrape
+	for setor in setores:
+		
+		# prepara data frame
+		df = pd.DataFrame(index = anos, columns = calculos)
+		df = df.fillna(0)
+
+		for calc in calculos:
+			driver.find_element_by_css_selector(setores[setor]).click()
+			select('#calculo', calc)
+			driver.find_element_by_css_selector('#btnConsultar8').click() # ir
+
+			time.sleep(0.7) #previne bugs por internet lenta
+			source = driver.page_source
+			
+			# se o tamanho do vetor de preço e da matriz divergir
+			if(len(df[calc]) > len(anos)):
+				diff = len(df[calc] - len(valueList))
+				for n in range(0, diff):
+					valueList.append(0)
+			else:
+				df[calc] = getValues(source)
+
+			driver.back()
+			time.sleep(0.7)
+			driver.find_element_by_css_selector(setores[setor]).click()
+			time.sleep(0.7)
+
+		dfDic[setor] = df.T
+
+	
+	return dfDic
 
 
 #Execução
@@ -186,6 +239,11 @@ IPs = {'IGP-DI':'#grupoIndicePreco\:opcoes_0',
 	'IPCA':'#grupoIndicePreco\:opcoes_5', 
 	'IPCA-15':'#grupoIndicePreco\:opcoes_6'}
 
+# cria dicionário de setores do PIBs
+setores = {'Agropecuaria':'#grupoPib\:opcoes_0',
+	'Inducstrial':'#grupoPib\:opcoes_1',
+	'Servico':'#grupoPib\:opcoes_2', 
+	'Total':'#grupoPib\:opcoes_3'}
 
 #Scrape 
 
@@ -196,13 +254,14 @@ for df in ipsAnual:
 	arquivo = 'Focus (' + df + '-Anual)'
 	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
-#ipsMensal = scrapeIPsMensal(IPs, calculos[0:3], meses, anos)
-#for df in ipsMensal:
-#	df_ip = ipsMensal[df]
-#	arquivo = 'Focus (' + df + '-Mensal)'
-#	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+ipsMensal = scrapeIPsMensal(IPs, calculos[0:3], meses, anos)
+for df in ipsMensal:
+	df_ip = ipsMensal[df]
+	arquivo = 'Focus (' + df + '-Mensal)'
+	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
-
-
-
-
+PIBAnual = scrapePIBAnual(setores, calculos, anos)
+for df in PIBAnual:
+	df_pib = PIBAnual[df]
+	arquivo = 'Focus (PIB-' + df + '-Anual)'
+	df_pib.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
