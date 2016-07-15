@@ -255,6 +255,47 @@ def scrapePIBAnual(setores, calculos, anos):
 	
 	return dfDic
 
+# pega os valores da produção industrial dados os calulos e os anos
+def scrapeIndustriaAnual(calculos, anos):
+
+	# seleções padrão
+	select('#indicador', 'Produção Industrial')
+	select('#periodicidade', 'Anual')
+
+	# data em que as séries foram feitas
+	dataFinal = driver.find_element_by_css_selector('#tfDataInicial1')
+	dataFinal.send_keys(time.strftime("%d/%m/%Y"))
+	dataInicial = driver.find_element_by_css_selector('#tfDataFinal2')
+	dataInicial.send_keys(time.strftime("%d/%m/%Y"))
+	
+	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
+		'tr > td:nth-child(2) > select', anos[0])
+	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
+		'tr > td:nth-child(4) > select', anos[-1])
+
+	# prepara data frame
+	df = pd.DataFrame(index = anos, columns = calculos)
+	df = df.fillna(0)
+		
+	for calc in calculos:
+		select('#calculo', calc)
+		driver.find_element_by_css_selector('#btnConsultar8').click() # ir
+		time.sleep(0.7) #previne bugs por internet lenta
+		
+		valores = getValues(driver.page_source)
+		
+		if(len(valores) < len(anos)):
+			diff = len(anos) - len(valores)
+			for n in range(0,diff):
+				valores.append(0)
+		else:
+			df[calc] = valores
+
+		driver.back()
+	
+	return df.T
+
+
 
 #Execução
 
@@ -311,7 +352,10 @@ for df in PIBAnual:
 	arquivo = 'Focus (PIB-' + df + '-Anual)'
 	df_pib.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
-
 ac12MesesSuav =  scrapeIPsAc12MesesSuav(IPs, calculos[0:3])
 arquivo = 'Focus (Inflação Ac. 12 meses-Suavizada)'
 ac12MesesSuav.to_csv(arquivo + ".csv", sep = ';', index = True) 
+
+industria = scrapeIndustriaAnual(calculos[0:3], anos)
+arquivo = 'Focus (Produção Industrial)'
+industria.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
