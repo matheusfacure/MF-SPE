@@ -255,7 +255,7 @@ def scrapePIBAnual(setores, calculos, anos):
 	
 	return dfDic
 
-# pega os valores da produção industrial dados os calulos e os anos
+# pega os valores da produção industrial dados os cálculos e os anos
 def scrapeIndustriaAnual(calculos, anos):
 
 	# seleções padrão
@@ -295,12 +295,62 @@ def scrapeIndustriaAnual(calculos, anos):
 	
 	return df.T
 
+# pega os dados fiscais dados os cálculos e os anos
+def scrapeFiscalAnual(calculos, anos):
+
+	# seleções padrão
+	select('#indicador', 'Fiscal')
+	select('#periodicidade', 'Anual')
+
+	# data em que as séries foram feitas
+	dataFinal = driver.find_element_by_css_selector('#tfDataInicial1')
+	dataFinal.send_keys(time.strftime("%d/%m/%Y"))
+	dataInicial = driver.find_element_by_css_selector('#tfDataFinal2')
+	dataInicial.send_keys(time.strftime("%d/%m/%Y"))
+	
+	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
+		'tr > td:nth-child(2) > select', anos[0])
+	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
+		'tr > td:nth-child(4) > select', anos[-1])
+
+
+	#dicinário de tabs 
+	tabs = {'Resultado Primário':'#dijit_layout__TabButton_0',
+		'Resultado Nominal':'#dijit_layout__TabButton_1',
+		'Dívida Líquida':'#dijit_layout__TabButton_2'}
+
+
+	# prepara data frame
+	df = pd.DataFrame(index = anos, columns = [])
+	df = df.fillna(0)
+	
+	for calc in calculos:
+		select('#calculo', calc)
+		driver.find_element_by_css_selector('#btnConsultar8').click() # ir
+		time.sleep(0.7) #previne bugs por internet lenta
+		
+		for tab in tabs:
+			driver.find_element_by_css_selector(tabs[tab]).click()
+
+			valores = getValues(driver.page_source)
+			
+			if(len(valores) < len(anos)):
+				diff = len(anos) - len(valores)
+				for n in range(0,diff):
+					valores.append(0)
+			
+			df[tab + '-' + calc] = valores
+			
+		driver.back()
+	
+	return df.T
+
 
 
 #Execução
 
 site = "https://www3.bcb.gov.br/expectativas/publico/consulta/serieestatisticas"
-driver = webdriver.Firefox()
+driver = webdriver.Firefox() #Firefox() ou PhantomJS()
 driver.get(site)
 
 #cria lista de anos c/ ano atual e 4 anos à frente
@@ -359,3 +409,9 @@ ac12MesesSuav.to_csv(arquivo + ".csv", sep = ';', index = True)
 industria = scrapeIndustriaAnual(calculos[0:3], anos)
 arquivo = 'Focus (Produção Industrial)'
 industria.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+
+fiscal = scrapeFiscalAnual(calculos[0:3], anos)
+arquivo = 'Focus (Fiscal)'
+fiscal.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+
+driver.close()
