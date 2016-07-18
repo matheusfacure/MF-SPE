@@ -313,12 +313,10 @@ def scrapeFiscalAnual(calculos, anos):
 	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
 		'tr > td:nth-child(4) > select', anos[-1])
 
-
 	#dicinário de tabs 
 	tabs = {'Resultado Primário':'#dijit_layout__TabButton_0',
 		'Resultado Nominal':'#dijit_layout__TabButton_1',
 		'Dívida Líquida':'#dijit_layout__TabButton_2'}
-
 
 	# prepara data frame
 	df = pd.DataFrame(index = anos, columns = [])
@@ -345,6 +343,54 @@ def scrapeFiscalAnual(calculos, anos):
 	
 	return df.T
 
+# pega os dados da BP dados os cálculos e os anos
+def scrapeBCAnual(calculos, anos):
+	
+	# seleções padrão
+	select('#indicador', 'Balança Comercial')
+	select('#periodicidade', 'Anual')
+
+	# data em que as séries foram feitas
+	dataFinal = driver.find_element_by_css_selector('#tfDataInicial1')
+	dataFinal.send_keys(time.strftime("%d/%m/%Y"))
+	dataInicial = driver.find_element_by_css_selector('#tfDataFinal2')
+	dataInicial.send_keys(time.strftime("%d/%m/%Y"))
+	
+	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
+		'tr > td:nth-child(2) > select', anos[0])
+	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
+		'tr > td:nth-child(4) > select', anos[-1])
+
+	#dicinário de tabs 
+	tabs = {'Exportações':'#dijit_layout__TabButton_0',
+		'Importações':'#dijit_layout__TabButton_1',
+		'Saldo':'#dijit_layout__TabButton_2'}
+
+	# prepara data frame
+	df = pd.DataFrame(index = anos, columns = [])
+	df = df.fillna(0)
+	
+	for calc in calculos:
+		select('#calculo', calc)
+		driver.find_element_by_css_selector('#btnConsultar8').click() # ir
+		time.sleep(0.7) #previne bugs por internet lenta
+		
+		for tab in tabs:
+			driver.find_element_by_css_selector(tabs[tab]).click()
+
+			valores = getValues(driver.page_source)
+			
+			if(len(valores) < len(anos)):
+				diff = len(anos) - len(valores)
+				for n in range(0,diff):
+					valores.append(0)
+			
+			df[tab + '-' + calc] = valores
+			print(df.T)
+
+		driver.back()
+	
+	return df.T
 
 
 #Execução
@@ -384,34 +430,38 @@ setores = {'Agropecuaria':'#grupoPib\:opcoes_0',
 
 #Scrape 
 
-ipsAnual = scrapeIPsAnual(IPs, calculos, anos)
-for df in ipsAnual:
-	df_ip = ipsAnual[df]
-	arquivo = 'Focus (' + df + '-Anual)'
-	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+#ipsAnual = scrapeIPsAnual(IPs, calculos, anos)
+#for df in ipsAnual:
+#	df_ip = ipsAnual[df]
+#	arquivo = 'Focus (' + df + '-Anual)'
+#	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
-ipsMensal = scrapeIPsMensal(IPs, calculos[0:3], meses, anos)
-for df in ipsMensal:
-	df_ip = ipsMensal[df]
-	arquivo = 'Focus (' + df + '-Mensal)'
-	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+#ipsMensal = scrapeIPsMensal(IPs, calculos[0:3], meses, anos)
+#for df in ipsMensal:
+#	df_ip = ipsMensal[df]
+#	arquivo = 'Focus (' + df + '-Mensal)'
+#	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
-PIBAnual = scrapePIBAnual(setores, calculos, anos)
-for df in PIBAnual:
-	df_pib = PIBAnual[df]
-	arquivo = 'Focus (PIB-' + df + '-Anual)'
-	df_pib.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+#PIBAnual = scrapePIBAnual(setores, calculos, anos)
+#for df in PIBAnual:
+#	df_pib = PIBAnual[df]
+#	arquivo = 'Focus (PIB-' + df + '-Anual)'
+#	df_pib.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
-ac12MesesSuav =  scrapeIPsAc12MesesSuav(IPs, calculos[0:3])
-arquivo = 'Focus (Inflação Ac. 12 meses-Suavizada)'
-ac12MesesSuav.to_csv(arquivo + ".csv", sep = ';', index = True) 
+#ac12MesesSuav =  scrapeIPsAc12MesesSuav(IPs, calculos[0:3])
+#arquivo = 'Focus (Inflação Ac. 12 meses-Suavizada)'
+#ac12MesesSuav.to_csv(arquivo + ".csv", sep = ';', index = True) 
 
-industria = scrapeIndustriaAnual(calculos[0:3], anos)
-arquivo = 'Focus (Produção Industrial)'
-industria.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+#industria = scrapeIndustriaAnual(calculos[0:3], anos)
+#arquivo = 'Focus (Produção Industrial)'
+#industria.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
 fiscal = scrapeFiscalAnual(calculos[0:3], anos)
 arquivo = 'Focus (Fiscal)'
 fiscal.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
-driver.close()
+BC = scrapeBCAnual(calculos[0:3], anos)
+arquivo = 'Focus (Balança Comercial)'
+BC.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+
+#driver.close()
