@@ -18,12 +18,34 @@ def select(indicadorCSS, nome):
 	return
 
 # pega os valores na tabela da página do bcb
-def getValues(page):
+def getValues(page, tabs = 1):
+
 	startTable = page.find('var data1= [[')
 	if startTable == -1:
 		return None, 0
-	endTable = page.find('ultima linha em branco', startTable)
-	return re.findall('-?\d?\d?\d?\d\,\d\d', page[startTable:endTable])
+	endTable = page.find('grid structure', startTable)
+
+	# se só uma tab na página
+	if(tabs == 1):
+		return re.findall('-?\d?\d?\d?\d\,\d\d', page[startTable:endTable])
+
+	# se mais de uma aba na página
+	else:
+		
+		#prepara dicionário de abas
+		tabDic = {}
+
+		# acha todos os valores
+		todos = re.findall('-?\d?\d?\d?\d\,\d\d', page[startTable:endTable])
+		nPorAba = len(todos) / tabs
+		
+		for tab in range(1,tabs + 1):
+			tabDic['Aba' + str(tab)] = todos[:int(nPorAba)]
+			print(todos)
+			todos = todos[int(nPorAba):]
+			print(todos)
+		
+		return tabDic
 
 # pega os valores dos IPs dados os cálculos especificados (Anual)
 def scrapeIPsAnual(IPs, calculos, anos):
