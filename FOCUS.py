@@ -41,9 +41,7 @@ def getValues(page, tabs = 1):
 		
 		for tab in range(1,tabs + 1):
 			tabDic['Aba' + str(tab)] = todos[:int(nPorAba)]
-			print(todos)
 			todos = todos[int(nPorAba):]
-			print(todos)
 		
 		return tabDic
 
@@ -336,9 +334,9 @@ def scrapeFiscalAnual(calculos, anos):
 		'tr > td:nth-child(4) > select', anos[-1])
 
 	#dicinário de tabs 
-	tabs = {'Resultado Primário':'#dijit_layout__TabButton_0',
-		'Resultado Nominal':'#dijit_layout__TabButton_1',
-		'Dívida Líquida':'#dijit_layout__TabButton_2'}
+	tabs = {'Aba1':'Resultado Primário',
+		'Aba2':'Resultado Nominal',
+		'Aba3':'Dívida Líquida',}
 
 	# prepara data frame
 	df = pd.DataFrame(index = anos, columns = [])
@@ -350,17 +348,10 @@ def scrapeFiscalAnual(calculos, anos):
 		time.sleep(0.7) #previne bugs por internet lenta
 		
 		for tab in tabs:
-			driver.find_element_by_css_selector(tabs[tab]).click()
+			valoresDic = getValues(driver.page_source, 3)
+			for aba in valoresDic:
+				df[tabs[aba] + '-' + calc] = valoresDic[aba]
 
-			valores = getValues(driver.page_source)
-			
-			if(len(valores) < len(anos)):
-				diff = len(anos) - len(valores)
-				for n in range(0,diff):
-					valores.append(0)
-			
-			df[tab + '-' + calc] = valores
-			
 		driver.back()
 	
 	return df.T
@@ -384,9 +375,7 @@ def scrapeBCAnual(calculos, anos):
 		'tr > td:nth-child(4) > select', anos[-1])
 
 	#dicinário de tabs 
-	tabs = {'Exportações':'#dijit_layout__TabButton_0',
-		'Importações':'#dijit_layout__TabButton_1',
-		'Saldo':'#dijit_layout__TabButton_2'}
+	tabs = {'Aba1':'Exportações', 'Aba2':'Importações', 'Aba3':'Saldo'}
 
 	# prepara data frame
 	df = pd.DataFrame(index = anos, columns = [])
@@ -398,17 +387,9 @@ def scrapeBCAnual(calculos, anos):
 		time.sleep(0.7) #previne bugs por internet lenta
 		
 		for tab in tabs:
-			driver.find_element_by_css_selector(tabs[tab]).click()
-
-			valores = getValues(driver.page_source)
-			
-			if(len(valores) < len(anos)):
-				diff = len(anos) - len(valores)
-				for n in range(0,diff):
-					valores.append(0)
-			
-			df[tab + '-' + calc] = valores
-			print(df.T)
+			valoresDic = getValues(driver.page_source, 3)
+			for aba in valoresDic:
+				df[tabs[aba] + '-' + calc] = valoresDic[aba]
 
 		driver.back()
 	
@@ -485,5 +466,8 @@ fiscal.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 BC = scrapeBCAnual(calculos[0:3], anos)
 arquivo = 'Focus (Balança Comercial)'
 BC.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+
+
+
 
 #driver.close()
