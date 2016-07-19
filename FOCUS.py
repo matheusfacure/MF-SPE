@@ -395,6 +395,44 @@ def scrapeBCAnual(calculos, anos):
 	
 	return df.T
 
+# pega os dados da BP dados os cálculos e os anos
+def scrapeBPAnual(calculos, anos):
+	# seleções padrão
+	select('#indicador', 'Balanço de Pagamentos')
+	select('#periodicidade', 'Anual')
+
+	# data em que as séries foram feitas
+	dataFinal = driver.find_element_by_css_selector('#tfDataInicial1')
+	dataFinal.send_keys(time.strftime("%d/%m/%Y"))
+	dataInicial = driver.find_element_by_css_selector('#tfDataFinal2')
+	dataInicial.send_keys(time.strftime("%d/%m/%Y"))
+	
+	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
+		'tr > td:nth-child(2) > select', anos[0])
+	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
+		'tr > td:nth-child(4) > select', anos[-1])
+
+	#dicinário de tabs 
+	tabs = {'Aba1':'Conta Corrente', 'Aba2':'IDP'}
+
+	# prepara data frame
+	df = pd.DataFrame(index = anos, columns = [])
+	df = df.fillna(0)
+	
+	for calc in calculos:
+		select('#calculo', calc)
+		driver.find_element_by_css_selector('#btnConsultar8').click() # ir
+		time.sleep(0.7) #previne bugs por internet lenta
+		
+		for tab in tabs:
+			valoresDic = getValues(driver.page_source, 2)
+			for aba in valoresDic:
+				df[tabs[aba] + '-' + calc] = valoresDic[aba]
+
+		driver.back()
+	
+	return df.T
+
 
 #Execução
 
@@ -459,13 +497,18 @@ setores = {'Agropecuaria':'#grupoPib\:opcoes_0',
 #arquivo = 'Focus (Produção Industrial)'
 #industria.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
-fiscal = scrapeFiscalAnual(calculos[0:3], anos)
-arquivo = 'Focus (Fiscal)'
-fiscal.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+#fiscal = scrapeFiscalAnual(calculos[0:3], anos)
+#arquivo = 'Focus (Fiscal)'
+#fiscal.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
-BC = scrapeBCAnual(calculos[0:3], anos)
-arquivo = 'Focus (Balança Comercial)'
-BC.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+#BC = scrapeBCAnual(calculos[0:3], anos)
+#arquivo = 'Focus (Balança Comercial)'
+#BC.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+
+BP = scrapeBPAnual(calculos[0:3], anos)
+arquivo = 'Focus (Balança de Pagamentos)'
+BP.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+
 
 
 
