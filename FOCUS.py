@@ -25,9 +25,13 @@ def getValues(page, tabs = 1):
 		return None, 0
 	endTable = page.find('grid structure', startTable)
 
+	dataDeCriacao = re.findall('\d\d\/\d\d\/\d\d\d\d', page)[1]
+
 	# se só uma tab na página
 	if(tabs == 1):
-		return re.findall('-?\d?\d?\d?\d\,\d\d', page[startTable:endTable])
+		valores = re.findall('-?\d?\d?\d?\d\,\d\d', page[startTable:endTable])
+	
+		return valores, dataDeCriacao
 
 	# se mais de uma aba na página
 	else:
@@ -43,7 +47,7 @@ def getValues(page, tabs = 1):
 			tabDic['Aba' + str(tab)] = todos[:int(nPorAba)]
 			todos = todos[int(nPorAba):]
 		
-		return tabDic
+		return tabDic, dataDeCriacao
 
 # pega os valores dos IPs dados os cálculos especificados (Anual)
 def scrapeIPsAnual(IPs, calculos, anos):
@@ -65,14 +69,14 @@ def scrapeIPsAnual(IPs, calculos, anos):
 
 	#  prepara dicironarios de data frames
 	dfDic = {}
-
+	
 	# scrape
 	for ip in IPs:
 		
 		# prepara data frame
-		df = pd.DataFrame(index = anos, columns = calculos)
+		df = pd.DataFrame(index = anos + ['Feito em'], columns = calculos)
 		df = df.fillna(0)
-
+		
 		for calc in calculos:
 			driver.find_element_by_css_selector(IPs[ip]).click()
 			select('#calculo', calc)
@@ -80,22 +84,23 @@ def scrapeIPsAnual(IPs, calculos, anos):
 
 			time.sleep(0.7) #previne bugs por internet lenta
 			source = driver.page_source
+			valueList, dataDeCriacao = getValues(source)
+			valueList.append(dataDeCriacao)
+			print(valueList)
 			
 			# se o tamanho do vetor de preço e da matriz divergir
-			if(len(df[calc]) > len(anos)):
-				diff = len(df[calc] - len(valueList))
-				for n in range(0, diff):
+			if(len(df[calc]) > len(valueList)):
+				for n in range(0, len(df[calc]) - len(valueList)):
 					valueList.append(0)
-			else:
-				df[calc] = getValues(source)
-
+			
+			df[calc] = valueList
+			print(df.T)
 			driver.back()
 			time.sleep(0.7)
 			driver.find_element_by_css_selector(IPs[ip]).click() #limpa seleção
 			time.sleep(0.7)
 
 		dfDic[ip] = df.T
-
 	
 	return dfDic
 
@@ -136,7 +141,7 @@ def scrapeIPsAc12MesesSuav(IPs, calculos):
 			source = driver.page_source
 			
 			# adiciona valor do IP à lista do cálculo
-			valueList.append(getValues(source)[0])
+			valueList.append(getValues(source)[0][0])
 
 			driver.back()
 			time.sleep(0.7)
@@ -205,7 +210,7 @@ def scrapeIPsMensal(IPs, calculos, meses, anos):
 			time.sleep(0.7) #previne bugs por internet lenta
 			
 			source = driver.page_source
-			valueList = getValues(source) 
+			valueList = getValues(source)[0] 
 			
 			# se o tamanho do vetor de preço e da matriz divergir
 			if(len(df[calc]) > len(valueList)):
@@ -267,7 +272,7 @@ def scrapePIBAnual(setores, calculos, anos):
 				for n in range(0, diff):
 					valueList.append(0)
 			else:
-				df[calc] = getValues(source)
+				df[calc] = getValues(source)[0]
 
 			driver.back()
 			time.sleep(0.7)
@@ -306,7 +311,7 @@ def scrapeIndustriaAnual(calculos, anos):
 		driver.find_element_by_css_selector('#btnConsultar8').click() # ir
 		time.sleep(0.7) #previne bugs por internet lenta
 		
-		valores = getValues(driver.page_source)
+		valores = getValues(driver.page_source)[0]
 		
 		if(len(valores) < len(anos)):
 			diff = len(anos) - len(valores)
@@ -352,7 +357,7 @@ def scrapeFiscalAnual(calculos, anos):
 		time.sleep(0.7) #previne bugs por internet lenta
 		
 		for tab in tabs:
-			valoresDic = getValues(driver.page_source, 3)
+			valoresDic = getValues(driver.page_source, 3)[0]
 			for aba in valoresDic:
 				df[tabs[aba] + '-' + calc] = valoresDic[aba]
 
@@ -391,7 +396,7 @@ def scrapeBCAnual(calculos, anos):
 		time.sleep(0.7) #previne bugs por internet lenta
 		
 		for tab in tabs:
-			valoresDic = getValues(driver.page_source, 3)
+			valoresDic = getValues(driver.page_source, 3)[0]
 			for aba in valoresDic:
 				df[tabs[aba] + '-' + calc] = valoresDic[aba]
 
@@ -429,7 +434,7 @@ def scrapeBPAnual(calculos, anos):
 		time.sleep(0.7) #previne bugs por internet lenta
 		
 		for tab in tabs:
-			valoresDic = getValues(driver.page_source, 2)
+			valoresDic = getValues(driver.page_source, 2)[0]
 			for aba in valoresDic:
 				df[tabs[aba] + '-' + calc] = valoresDic[aba]
 
@@ -481,43 +486,43 @@ for df in ipsAnual:
 	arquivo = 'Focus (' + df + '-Anual)'
 	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
-time.sleep(1)
-ipsMensal = scrapeIPsMensal(IPs, calculos[0:3], meses, anos)
-for df in ipsMensal:
-	df_ip = ipsMensal[df]
-	arquivo = 'Focus (' + df + '-Mensal)'
-	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+#time.sleep(1)
+#ipsMensal = scrapeIPsMensal(IPs, calculos[0:3], meses, anos)
+#for df in ipsMensal:
+#	df_ip = ipsMensal[df]
+#	arquivo = 'Focus (' + df + '-Mensal)'
+#	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
-time.sleep(1)
-PIBAnual = scrapePIBAnual(setores, calculos, anos)
-for df in PIBAnual:
-	df_pib = PIBAnual[df]
-	arquivo = 'Focus (PIB-' + df + '-Anual)'
-	df_pib.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+#time.sleep(1)
+#PIBAnual = scrapePIBAnual(setores, calculos, anos)
+#for df in PIBAnual:
+#	df_pib = PIBAnual[df]
+#	arquivo = 'Focus (PIB-' + df + '-Anual)'
+#	df_pib.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
-time.sleep(1)
-ac12MesesSuav =  scrapeIPsAc12MesesSuav(IPs, calculos[0:3])
-arquivo = 'Focus (Inflação Ac. 12 meses-Suavizada)'
-ac12MesesSuav.to_csv(arquivo + ".csv", sep = ';', index = True) 
+#time.sleep(1)
+#ac12MesesSuav =  scrapeIPsAc12MesesSuav(IPs, calculos[0:3])
+#arquivo = 'Focus (Inflação Ac. 12 meses-Suavizada)'
+#ac12MesesSuav.to_csv(arquivo + ".csv", sep = ';', index = True) 
 
-time.sleep(1)
-industria = scrapeIndustriaAnual(calculos[0:3], anos)
-arquivo = 'Focus (Produção Industrial)'
-industria.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+#time.sleep(1)
+#industria = scrapeIndustriaAnual(calculos[0:3], anos)
+#arquivo = 'Focus (Produção Industrial)'
+#industria.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
-time.sleep(1)
-fiscal = scrapeFiscalAnual(calculos[0:3], anos)
-arquivo = 'Focus (Fiscal)'
-fiscal.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+#time.sleep(1)
+#fiscal = scrapeFiscalAnual(calculos[0:3], anos)
+#arquivo = 'Focus (Fiscal)'
+#fiscal.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
-time.sleep(1)
-BC = scrapeBCAnual(calculos[0:3], anos)
-arquivo = 'Focus (Balança Comercial)'
-BC.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+#time.sleep(1)
+#BC = scrapeBCAnual(calculos[0:3], anos)
+#arquivo = 'Focus (Balança Comercial)'
+#BC.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
-time.sleep(1)
-BP = scrapeBPAnual(calculos[0:3], anos)
-arquivo = 'Focus (Balança de Pagamentos)'
-BP.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+#time.sleep(1)
+#BP = scrapeBPAnual(calculos[0:3], anos)
+#arquivo = 'Focus (Balança de Pagamentos)'
+#BP.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
 driver.close()
