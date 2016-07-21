@@ -180,7 +180,6 @@ def scrapeIPsMensal(IPs, calculos, meses, anos):
 		'td:nth-child(4) > select:nth-child(2)', anos[anoFinal])
 	select('#mesReferenciaFinal', meses[mesFinal - 1])
 
-
 	#Prepara dicironarios de data frames
 	dfDic = {}
 
@@ -193,9 +192,9 @@ def scrapeIPsMensal(IPs, calculos, meses, anos):
 
 	#scrape
 	for ip in IPs:
-		
-		
-		df = pd.DataFrame(index = meses[12:], columns = calculos)
+				
+		df = pd.DataFrame(index = meses[12:] + ['Criada em'],
+			columns = calculos)
 		df = df.fillna(0)
 
 		for calc in calculos:
@@ -205,14 +204,13 @@ def scrapeIPsMensal(IPs, calculos, meses, anos):
 
 			time.sleep(0.7) #previne bugs por internet lenta
 			
-			source = driver.page_source
-			valueList = getValues(source)[0] 
-			
+			valueList, criadaEm = getValues(driver.page_source)
+			valueList.append(criadaEm)
+
 			# se o tamanho do vetor de preço e da matriz divergir
 			if(len(df[calc]) > len(valueList)):
-				diff = len(df[calc]) - len(valueList)
-				for n in range(0, diff):
-					valueList.append(0)
+				for n in range(0, len(df[calc]) - len(valueList)):
+					valueList.append('')
 			
 			df[calc] = valueList
 
@@ -220,9 +218,8 @@ def scrapeIPsMensal(IPs, calculos, meses, anos):
 			time.sleep(0.7)
 			driver.find_element_by_css_selector(IPs[ip]).click() #limpa seleção
 			time.sleep(0.7)
-
+			
 		dfDic[ip] = df.T
-
 
 	return(dfDic)
 
@@ -464,11 +461,11 @@ setores = {'Agropecuaria':'#grupoPib\:opcoes_0',
 #	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
 #time.sleep(1)
-#ipsMensal = scrapeIPsMensal(IPs, calculos[0:3], meses, anos)
-#for df in ipsMensal:
-#	df_ip = ipsMensal[df]
-#	arquivo = 'Focus (' + df + '-Mensal)'
-#	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+ipsMensal = scrapeIPsMensal(IPs, calculos[0:3], meses, anos)
+for df in ipsMensal:
+	df_ip = ipsMensal[df]
+	arquivo = 'Focus (' + df + '-Mensal)'
+	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
 #time.sleep(1)
 #PIBAnual = scrapePIBAnual(setores, calculos, anos)
@@ -478,9 +475,9 @@ setores = {'Agropecuaria':'#grupoPib\:opcoes_0',
 #	df_pib.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
 #time.sleep(1)
-ac12MesesSuav =  scrapeIPsAc12MesesSuav(IPs, calculos[0:3])
-arquivo = 'Focus (Inflação Ac. 12 meses-Suavizada)'
-ac12MesesSuav.to_csv(arquivo + ".csv", sep = ';', index = True) 
+#ac12MesesSuav =  scrapeIPsAc12MesesSuav(IPs, calculos[0:3])
+#arquivo = 'Focus (Inflação Ac. 12 meses-Suavizada)'
+#ac12MesesSuav.to_csv(arquivo + ".csv", sep = ';', index = True) 
 
 #time.sleep(1)
 #industria = scrapeIndustriaAnual(calculos[0:3], anos)
