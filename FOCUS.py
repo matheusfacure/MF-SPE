@@ -330,7 +330,7 @@ def scrapeFiscalAnual(calculos, anos):
 		'Aba3':'Dívida Líquida',}
 
 	# prepara data frame
-	df = pd.DataFrame(index = anos, columns = [])
+	df = pd.DataFrame(index = anos + ['Criada em'], columns = [])
 	df = df.fillna(0)
 	
 	for calc in calculos:
@@ -339,10 +339,10 @@ def scrapeFiscalAnual(calculos, anos):
 		time.sleep(0.7) #previne bugs por internet lenta
 		
 		for tab in tabs:
-			valoresDic = getValues(driver.page_source, 3)[0]
+			valoresDic, criadaEm = getValues(driver.page_source, 3)
 			for aba in valoresDic:
-				df[tabs[aba] + '-' + calc] = valoresDic[aba]
-
+				df[tabs[aba] + '-' + calc] = valoresDic[aba] + [criadaEm]
+	
 		driver.back()
 	
 	return df.T
@@ -480,15 +480,15 @@ setores = {'Agropecuaria':'#grupoPib\:opcoes_0',
 #arquivo = 'Focus (Inflação Ac. 12 meses-Suavizada)'
 #ac12MesesSuav.to_csv(arquivo + ".csv", sep = ';', index = True) 
 
-time.sleep(1)
-industria = scrapeIndustriaAnual(calculos[0:3], anos)
-arquivo = 'Focus (Produção Industrial)'
-industria.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
-
 #time.sleep(1)
-#fiscal = scrapeFiscalAnual(calculos[0:3], anos)
-#arquivo = 'Focus (Fiscal)'
-#fiscal.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+#industria = scrapeIndustriaAnual(calculos[0:3], anos)
+#arquivo = 'Focus (Produção Industrial)'
+#industria.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+
+time.sleep(1)
+fiscal = scrapeFiscalAnual(calculos[0:3], anos)
+arquivo = 'Focus (Fiscal)'
+fiscal.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
 #time.sleep(1)
 #BC = scrapeBCAnual(calculos[0:3], anos)
