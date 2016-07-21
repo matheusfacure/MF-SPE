@@ -17,7 +17,7 @@ def select(indicadorCSS, nome):
 			break
 	return
 
-# Seleciona a data em que as series foramc criadas
+# seleciona a data em que as series foram criadas
 def selectDataDeCriacao():
 
 	# data em que as séries foram feitas
@@ -25,6 +25,14 @@ def selectDataDeCriacao():
 	dataFinal.send_keys(time.strftime("%d/%m/%Y"))
 	dataInicial = driver.find_element_by_css_selector('#tfDataFinal2')
 	dataInicial.send_keys(time.strftime("%d/%m/%Y"))
+
+# seleciona a data de projeção
+def selectData(anos, meses = None):
+	# seleciona os anos
+	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
+		'tr > td:nth-child(2) > select', anos[0])
+	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
+		'tr > td:nth-child(4) > select', anos[-1])
 
 # pega os valores na tabela da página do bcb
 def getValues(page, tabs = 1):
@@ -66,11 +74,7 @@ def scrapeIPsAnual(IPs, calculos, anos):
 	select('#periodicidade', 'Anual')
 
 	selectDataDeCriacao()
-
-	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
-		'tr > td:nth-child(2) > select', anos[0])
-	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
-		'tr > td:nth-child(4) > select', anos[-1])
+	selectData(anos)
 
 	#  prepara dicironarios de data frames
 	dfDic = {}
@@ -140,7 +144,7 @@ def scrapeIPsAc12MesesSuav(IPs, calculos):
 			time.sleep(0.7) #previne bugs por internet lenta
 			
 			# adiciona valor do IP à lista do cálculo
-			value, criadaEm = getValues(river.page_source)
+			value, criadaEm = getValues(driver.page_source)
 			valueList = valueList + value
 
 			driver.back()
@@ -231,11 +235,7 @@ def scrapePIBAnual(setores, calculos, anos):
 	select('#periodicidade', 'Anual')
 
 	selectDataDeCriacao()
-	
-	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
-		'tr > td:nth-child(2) > select', anos[0])
-	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
-		'tr > td:nth-child(4) > select', anos[-1])
+	selectData(anos)
 
 	# prepara dicironarios de data frames
 	dfDic = {}
@@ -282,20 +282,17 @@ def scrapeIndustriaAnual(calculos, anos):
 	select('#periodicidade', 'Anual')
 
 	selectDataDeCriacao()
-	
-	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
-		'tr > td:nth-child(2) > select', anos[0])
-	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
-		'tr > td:nth-child(4) > select', anos[-1])
+	selectData(anos)
 
 	# prepara data frame
 	df = pd.DataFrame(index = anos + ['Criada em'], columns = calculos)
 	df = df.fillna(0)
 		
 	for calc in calculos:
+		time.sleep(0.7) #previne bugs por internet lenta
 		select('#calculo', calc)
 		driver.find_element_by_css_selector('#btnConsultar8').click() # ir
-		time.sleep(0.7) #previne bugs por internet lenta
+		time.sleep(0.7)
 		
 		valueList, criadaEm = getValues(driver.page_source)
 		valueList.append(criadaEm)
@@ -305,7 +302,6 @@ def scrapeIndustriaAnual(calculos, anos):
 				valores.append('')
 
 		df[calc] = valueList
-		print(df)
 		driver.back()
 	
 	return df.T
@@ -318,12 +314,8 @@ def scrapeFiscalAnual(calculos, anos):
 	select('#periodicidade', 'Anual')
 
 	selectDataDeCriacao()
+	selectData(anos)
 	
-	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
-		'tr > td:nth-child(2) > select', anos[0])
-	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
-		'tr > td:nth-child(4) > select', anos[-1])
-
 	#dicinário de tabs 
 	tabs = {'Aba1':'Resultado Primário',
 		'Aba2':'Resultado Nominal',
@@ -338,13 +330,14 @@ def scrapeFiscalAnual(calculos, anos):
 		driver.find_element_by_css_selector('#btnConsultar8').click() # ir
 		time.sleep(0.7) #previne bugs por internet lenta
 		
+		valoresDic, criadaEm = getValues(driver.page_source, 3)
 		for tab in tabs:
-			valoresDic, criadaEm = getValues(driver.page_source, 3)
 			for aba in valoresDic:
 				df[tabs[aba] + '-' + calc] = valoresDic[aba] + [criadaEm]
 	
 		driver.back()
-	
+		time.sleep(1)
+
 	return df.T
 
 # pega os dados da BP dados os cálculos e os anos
@@ -355,11 +348,7 @@ def scrapeBCAnual(calculos, anos):
 	select('#periodicidade', 'Anual')
 
 	selectDataDeCriacao()
-	
-	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
-		'tr > td:nth-child(2) > select', anos[0])
-	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
-		'tr > td:nth-child(4) > select', anos[-1])
+	selectData(anos)
 
 	#dicinário de tabs 
 	tabs = {'Aba1':'Exportações', 'Aba2':'Importações', 'Aba3':'Saldo'}
@@ -373,13 +362,14 @@ def scrapeBCAnual(calculos, anos):
 		driver.find_element_by_css_selector('#btnConsultar8').click() # ir
 		time.sleep(0.7) #previne bugs por internet lenta
 		
+		valoresDic, criadaEm = getValues(driver.page_source, 3)
 		for tab in tabs:
-			valoresDic, criadaEm = getValues(driver.page_source, 3)
 			for aba in valoresDic:
 				df[tabs[aba] + '-' + calc] = valoresDic[aba] + [criadaEm]
 
 		driver.back()
-	
+		time.sleep(1)
+
 	return df.T
 
 # pega os dados da BP dados os cálculos e os anos
@@ -390,11 +380,7 @@ def scrapeBPAnual(calculos, anos):
 	select('#periodicidade', 'Anual')
 
 	selectDataDeCriacao()
-	
-	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
-		'tr > td:nth-child(2) > select', anos[0])
-	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
-		'tr > td:nth-child(4) > select', anos[-1])
+	selectData(anos)
 
 	#dicinário de tabs 
 	tabs = {'Aba1':'Conta Corrente', 'Aba2':'IDP'}
@@ -408,13 +394,14 @@ def scrapeBPAnual(calculos, anos):
 		driver.find_element_by_css_selector('#btnConsultar8').click() # ir
 		time.sleep(0.7) #previne bugs por internet lenta
 		
+		valoresDic, criadaEm = getValues(driver.page_source, 2)
 		for tab in tabs:
-			valoresDic, criadaEm = getValues(driver.page_source, 2)
 			for aba in valoresDic:
 				df[tabs[aba] + '-' + calc] = valoresDic[aba] + [criadaEm]
 
 		driver.back()
-	
+		time.sleep(1)
+
 	return df.T
 
 
@@ -440,18 +427,18 @@ calculos = ['Mínimo', 'Mediana', 'Máximo', 'Média', 'Desvio padrão']
 
 # cria dicionário de IPs
 IPs = {'IGP-DI':'#grupoIndicePreco\:opcoes_0', 
-	'IGP-M':'#grupoIndicePreco\:opcoes_1',
-	'INPC':'#grupoIndicePreco\:opcoes_2', 
-	'IPA-DI':'#grupoIndicePreco\:opcoes_3',
-	'IPA-M':'#grupoIndicePreco\:opcoes_4',  
-	'IPCA':'#grupoIndicePreco\:opcoes_5', 
-	'IPCA-15':'#grupoIndicePreco\:opcoes_6'}
+	'IGP-M':'#grupoIndicePreco\:opcoes_1'}
+#	'INPC':'#grupoIndicePreco\:opcoes_2', 
+#	'IPA-DI':'#grupoIndicePreco\:opcoes_3',
+#	'IPA-M':'#grupoIndicePreco\:opcoes_4',  
+#	'IPCA':'#grupoIndicePreco\:opcoes_5', 
+#	'IPCA-15':'#grupoIndicePreco\:opcoes_6'}
 
 # cria dicionário de setores do PIBs
 setores = {'Agropecuaria':'#grupoPib\:opcoes_0',
-	'Inducstrial':'#grupoPib\:opcoes_1',
-	'Servico':'#grupoPib\:opcoes_2', 
-	'Total':'#grupoPib\:opcoes_3'}
+	'Industrial':'#grupoPib\:opcoes_1'}
+#	'Servico':'#grupoPib\:opcoes_2', 
+#	'Total':'#grupoPib\:opcoes_3'}
 
 #Scrape 
 
@@ -474,30 +461,30 @@ setores = {'Agropecuaria':'#grupoPib\:opcoes_0',
 #	df_pib = PIBAnual[df]
 #	arquivo = 'Focus (PIB-' + df + '-Anual)'
 #	df_pib.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+for unused in range(1,10):
+	time.sleep(1)
+	ac12MesesSuav =  scrapeIPsAc12MesesSuav(IPs, calculos[0:3])
+	arquivo = 'Focus (Inflação Ac. 12 meses-Suavizada)'
+	ac12MesesSuav.to_csv(arquivo + ".csv", sep = ';', index = True) 
 
-#time.sleep(1)
-#ac12MesesSuav =  scrapeIPsAc12MesesSuav(IPs, calculos[0:3])
-#arquivo = 'Focus (Inflação Ac. 12 meses-Suavizada)'
-#ac12MesesSuav.to_csv(arquivo + ".csv", sep = ';', index = True) 
+	time.sleep(1)
+	industria = scrapeIndustriaAnual(calculos[0:3], anos)
+	arquivo = 'Focus (Produção Industrial)'
+	industria.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
-#time.sleep(1)
-#industria = scrapeIndustriaAnual(calculos[0:3], anos)
-#arquivo = 'Focus (Produção Industrial)'
-#industria.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+time.sleep(1)
+fiscal = scrapeFiscalAnual(calculos[0:3], anos)
+arquivo = 'Focus (Fiscal)'
+fiscal.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
-#time.sleep(1)
-#fiscal = scrapeFiscalAnual(calculos[0:3], anos)
-#arquivo = 'Focus (Fiscal)'
-#fiscal.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+time.sleep(1)
+BC = scrapeBCAnual(calculos[0:3], anos)
+arquivo = 'Focus (Balança Comercial)'
+BC.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
-#time.sleep(1)
-#BC = scrapeBCAnual(calculos[0:3], anos)
-#arquivo = 'Focus (Balança Comercial)'
-#BC.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
-
-#time.sleep(1)
+time.sleep(1)
 BP = scrapeBPAnual(calculos[0:3], anos)
 arquivo = 'Focus (Balança de Pagamentos)'
 BP.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
-#driver.close()
+driver.close()
