@@ -17,6 +17,15 @@ def select(indicadorCSS, nome):
 			break
 	return
 
+# Seleciona a data em que as series foramc criadas
+def selectDataDeCriacao():
+
+	# data em que as séries foram feitas
+	dataFinal = driver.find_element_by_css_selector('#tfDataInicial1')
+	dataFinal.send_keys(time.strftime("%d/%m/%Y"))
+	dataInicial = driver.find_element_by_css_selector('#tfDataFinal2')
+	dataInicial.send_keys(time.strftime("%d/%m/%Y"))
+
 # pega os valores na tabela da página do bcb
 def getValues(page, tabs = 1):
 
@@ -56,12 +65,8 @@ def scrapeIPsAnual(IPs, calculos, anos):
 	select('#indicador', 'Índices de preços')
 	select('#periodicidade', 'Anual')
 
-	# data em que as séries foram feitas
-	dataFinal = driver.find_element_by_css_selector('#tfDataInicial1')
-	dataFinal.send_keys(time.strftime("%d/%m/%Y"))
-	dataInicial = driver.find_element_by_css_selector('#tfDataFinal2')
-	dataInicial.send_keys(time.strftime("%d/%m/%Y"))
-	
+	selectDataDeCriacao()
+
 	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
 		'tr > td:nth-child(2) > select', anos[0])
 	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
@@ -86,7 +91,6 @@ def scrapeIPsAnual(IPs, calculos, anos):
 			source = driver.page_source
 			valueList, dataDeCriacao = getValues(source)
 			valueList.append(dataDeCriacao)
-			print(valueList)
 			
 			# se o tamanho do vetor de preço e da matriz divergir
 			if(len(df[calc]) > len(valueList)):
@@ -94,7 +98,7 @@ def scrapeIPsAnual(IPs, calculos, anos):
 					valueList.append(0)
 			
 			df[calc] = valueList
-			print(df.T)
+
 			driver.back()
 			time.sleep(0.7)
 			driver.find_element_by_css_selector(IPs[ip]).click() #limpa seleção
@@ -111,11 +115,7 @@ def scrapeIPsAc12MesesSuav(IPs, calculos):
 	indicador = 'Inflação acumulada para os próximos 12 meses - suavizada'
 	select('#indicador', indicador)
 	
-	# data em que as séries foram feitas
-	dataFinal = driver.find_element_by_css_selector('#tfDataInicial1')
-	dataFinal.send_keys(time.strftime("%d/%m/%Y"))
-	dataInicial = driver.find_element_by_css_selector('#tfDataFinal2')
-	dataInicial.send_keys(time.strftime("%d/%m/%Y"))
+	selectDataDeCriacao()
 	
 	# prepara data frame
 	IPsList = []
@@ -159,11 +159,7 @@ def scrapeIPsMensal(IPs, calculos, meses, anos):
 	select('#indicador', 'Índices de preços')
 	select('#periodicidade', 'Mensal')
 	
-	#Data em que as séries foram feitas
-	dataFinal = driver.find_element_by_css_selector('#tfDataInicial1')
-	dataFinal.send_keys(time.strftime("%d/%m/%Y"))
-	dataInicial = driver.find_element_by_css_selector('#tfDataFinal2')
-	dataInicial.send_keys(time.strftime("%d/%m/%Y"))
+	selectDataDeCriacao()
 	
 	# cria datas da coleta
 	mesHj = datetime.datetime.now()
@@ -237,11 +233,7 @@ def scrapePIBAnual(setores, calculos, anos):
 	select('#indicador', 'PIB')
 	select('#periodicidade', 'Anual')
 
-	# data em que as séries foram feitas
-	dataFinal = driver.find_element_by_css_selector('#tfDataInicial1')
-	dataFinal.send_keys(time.strftime("%d/%m/%Y"))
-	dataInicial = driver.find_element_by_css_selector('#tfDataFinal2')
-	dataInicial.send_keys(time.strftime("%d/%m/%Y"))
+	selectDataDeCriacao()
 	
 	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
 		'tr > td:nth-child(2) > select', anos[0])
@@ -291,11 +283,7 @@ def scrapeIndustriaAnual(calculos, anos):
 	select('#indicador', 'Produção Industrial')
 	select('#periodicidade', 'Anual')
 
-	# data em que as séries foram feitas
-	dataFinal = driver.find_element_by_css_selector('#tfDataInicial1')
-	dataFinal.send_keys(time.strftime("%d/%m/%Y"))
-	dataInicial = driver.find_element_by_css_selector('#tfDataFinal2')
-	dataInicial.send_keys(time.strftime("%d/%m/%Y"))
+	selectDataDeCriacao()
 	
 	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
 		'tr > td:nth-child(2) > select', anos[0])
@@ -331,11 +319,7 @@ def scrapeFiscalAnual(calculos, anos):
 	select('#indicador', 'Fiscal')
 	select('#periodicidade', 'Anual')
 
-	# data em que as séries foram feitas
-	dataFinal = driver.find_element_by_css_selector('#tfDataInicial1')
-	dataFinal.send_keys(time.strftime("%d/%m/%Y"))
-	dataInicial = driver.find_element_by_css_selector('#tfDataFinal2')
-	dataInicial.send_keys(time.strftime("%d/%m/%Y"))
+	selectDataDeCriacao()
 	
 	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
 		'tr > td:nth-child(2) > select', anos[0])
@@ -372,11 +356,7 @@ def scrapeBCAnual(calculos, anos):
 	select('#indicador', 'Balança Comercial')
 	select('#periodicidade', 'Anual')
 
-	# data em que as séries foram feitas
-	dataFinal = driver.find_element_by_css_selector('#tfDataInicial1')
-	dataFinal.send_keys(time.strftime("%d/%m/%Y"))
-	dataInicial = driver.find_element_by_css_selector('#tfDataFinal2')
-	dataInicial.send_keys(time.strftime("%d/%m/%Y"))
+	selectDataDeCriacao()
 	
 	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
 		'tr > td:nth-child(2) > select', anos[0])
@@ -406,15 +386,12 @@ def scrapeBCAnual(calculos, anos):
 
 # pega os dados da BP dados os cálculos e os anos
 def scrapeBPAnual(calculos, anos):
+	
 	# seleções padrão
 	select('#indicador', 'Balanço de Pagamentos')
 	select('#periodicidade', 'Anual')
 
-	# data em que as séries foram feitas
-	dataFinal = driver.find_element_by_css_selector('#tfDataInicial1')
-	dataFinal.send_keys(time.strftime("%d/%m/%Y"))
-	dataInicial = driver.find_element_by_css_selector('#tfDataFinal2')
-	dataInicial.send_keys(time.strftime("%d/%m/%Y"))
+	selectDataDeCriacao()
 	
 	select('#form4 > div.centralizado > table > tbody:nth-child(8) >' \
 		'tr > td:nth-child(2) > select', anos[0])
