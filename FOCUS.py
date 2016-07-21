@@ -95,7 +95,7 @@ def scrapeIPsAnual(IPs, calculos, anos):
 			# se o tamanho do vetor de preço e da matriz divergir
 			if(len(df[calc]) > len(valueList)):
 				for n in range(0, len(df[calc]) - len(valueList)):
-					valueList.append(0)
+					valueList.append('')
 			
 			df[calc] = valueList
 
@@ -122,7 +122,7 @@ def scrapeIPsAc12MesesSuav(IPs, calculos):
 	for ip in IPs:
 		IPsList.append(ip)
 
-	df = pd.DataFrame(index = IPsList, columns = calculos)
+	df = pd.DataFrame(index = IPsList + ['Feito em'], columns = calculos)
 	df = df.fillna(0)
 	
 	# scrape
@@ -130,6 +130,7 @@ def scrapeIPsAc12MesesSuav(IPs, calculos):
 		
 		#inicia lista de cálculos
 		valueList = []
+		criadaEm = []
 
 		for ip in IPsList:
 	
@@ -138,18 +139,17 @@ def scrapeIPsAc12MesesSuav(IPs, calculos):
 			driver.find_element_by_css_selector('#btnConsultar8').click() # ir
 			time.sleep(0.7) #previne bugs por internet lenta
 			
-			source = driver.page_source
-			
 			# adiciona valor do IP à lista do cálculo
-			valueList.append(getValues(source)[0][0])
+			value, criadaEm = getValues(river.page_source)
+			valueList = valueList + value
 
 			driver.back()
 			time.sleep(0.7)
 			driver.find_element_by_css_selector(IPs[ip]).click() #limpa seleção
 			time.sleep(0.7)
 
-		df[calc] = valueList
-	
+		df[calc] = valueList + [criadaEm]
+
 	return df.T
 
 # pega os valores dos IPs dados os cálculos especificados (Mensal)
@@ -442,12 +442,12 @@ calculos = ['Mínimo', 'Mediana', 'Máximo', 'Média', 'Desvio padrão']
 
 # cria dicionário de IPs
 IPs = {'IGP-DI':'#grupoIndicePreco\:opcoes_0', 
-	'IGP-M':'#grupoIndicePreco\:opcoes_1', 
-	'INPC':'#grupoIndicePreco\:opcoes_2', 
-	'IPA-DI':'#grupoIndicePreco\:opcoes_3',
-	'IPA-M':'#grupoIndicePreco\:opcoes_4',  
-	'IPCA':'#grupoIndicePreco\:opcoes_5', 
-	'IPCA-15':'#grupoIndicePreco\:opcoes_6'}
+	'IGP-M':'#grupoIndicePreco\:opcoes_1'} 
+#	'INPC':'#grupoIndicePreco\:opcoes_2', 
+#	'IPA-DI':'#grupoIndicePreco\:opcoes_3',
+#	'IPA-M':'#grupoIndicePreco\:opcoes_4',  
+#	'IPCA':'#grupoIndicePreco\:opcoes_5', 
+#	'IPCA-15':'#grupoIndicePreco\:opcoes_6'}
 
 # cria dicionário de setores do PIBs
 setores = {'Agropecuaria':'#grupoPib\:opcoes_0',
@@ -457,11 +457,11 @@ setores = {'Agropecuaria':'#grupoPib\:opcoes_0',
 
 #Scrape 
 
-ipsAnual = scrapeIPsAnual(IPs, calculos, anos)
-for df in ipsAnual:
-	df_ip = ipsAnual[df]
-	arquivo = 'Focus (' + df + '-Anual)'
-	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+#ipsAnual = scrapeIPsAnual(IPs, calculos, anos)
+#for df in ipsAnual:
+#	df_ip = ipsAnual[df]
+#	arquivo = 'Focus (' + df + '-Anual)'
+#	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
 #time.sleep(1)
 #ipsMensal = scrapeIPsMensal(IPs, calculos[0:3], meses, anos)
@@ -478,9 +478,9 @@ for df in ipsAnual:
 #	df_pib.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
 #time.sleep(1)
-#ac12MesesSuav =  scrapeIPsAc12MesesSuav(IPs, calculos[0:3])
-#arquivo = 'Focus (Inflação Ac. 12 meses-Suavizada)'
-#ac12MesesSuav.to_csv(arquivo + ".csv", sep = ';', index = True) 
+ac12MesesSuav =  scrapeIPsAc12MesesSuav(IPs, calculos[0:3])
+arquivo = 'Focus (Inflação Ac. 12 meses-Suavizada)'
+ac12MesesSuav.to_csv(arquivo + ".csv", sep = ';', index = True) 
 
 #time.sleep(1)
 #industria = scrapeIndustriaAnual(calculos[0:3], anos)
@@ -502,4 +502,4 @@ for df in ipsAnual:
 #arquivo = 'Focus (Balança de Pagamentos)'
 #BP.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
-driver.close()
+#driver.close()
