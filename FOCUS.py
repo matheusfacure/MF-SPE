@@ -47,7 +47,6 @@ def getValues(page, tabs = 1):
 	# se só uma tab na página
 	if(tabs == 1):
 		valores = re.findall('-?\d?\d?\d?\d\,\d\d', page[startTable:endTable])
-	
 		return valores, dataDeCriacao
 
 	# se mais de uma aba na página
@@ -63,7 +62,6 @@ def getValues(page, tabs = 1):
 		for tab in range(1,tabs + 1):
 			tabDic['Aba' + str(tab)] = todos[:int(nPorAba)]
 			todos = todos[int(nPorAba):]
-		
 		return tabDic, dataDeCriacao
 
 # pega os valores dos IPs dados os cálculos especificados (Anual)
@@ -102,6 +100,7 @@ def scrapeIPsAnual(IPs, calculos, anos):
 					valueList.append('')
 			
 			df[calc] = valueList
+			print('Coleta de ' + ip + ' Anual ' + calc + ' OK.')
 
 			driver.back()
 			time.sleep(0.7)
@@ -146,6 +145,7 @@ def scrapeIPsAc12MesesSuav(IPs, calculos):
 			# adiciona valor do IP à lista do cálculo
 			value, criadaEm = getValues(driver.page_source)
 			valueList = valueList + value
+			print('Coleta de ' + ip + ' 12 meses suavizda ' + calc + ' OK.')
 
 			driver.back()
 			time.sleep(0.7)
@@ -217,6 +217,7 @@ def scrapeIPsMensal(IPs, calculos, meses, anos):
 					valueList.append('')
 			
 			df[calc] = valueList
+			print('Coleta de ' + ip + ' Mensal ' + calc + ' OK.')
 
 			driver.back()
 			time.sleep(0.7)
@@ -263,6 +264,7 @@ def scrapePIBAnual(setores, calculos, anos):
 					valueList.append('')
 			
 			df[calc] = valueList
+			print('Coleta de PIB ' + setor + ' Anual ' + calc + ' OK.')
 
 			driver.back()
 			time.sleep(0.7)
@@ -302,6 +304,7 @@ def scrapeIndustriaAnual(calculos, anos):
 				valores.append('')
 
 		df[calc] = valueList
+		print('Coleta de Industrial Anual ' + calc + ' OK.')
 		driver.back()
 	
 	return df.T
@@ -333,6 +336,8 @@ def scrapeMonitoradosAnual(calculos, anos):
 				valores.append('')
 
 		df[calc] = valueList
+		print('Coleta de Monitorado Anual ' + calc + ' OK.')
+
 		driver.back()
 	
 	return df.T
@@ -365,7 +370,8 @@ def scrapeFiscalAnual(calculos, anos):
 		for tab in tabs:
 			for aba in valoresDic:
 				df[tabs[aba] + '-' + calc] = valoresDic[aba] + [criadaEm]
-	
+
+		print('Coleta de Fiscal Anual ' + calc + 's OK.')
 		driver.back()
 		time.sleep(1)
 
@@ -398,6 +404,7 @@ def scrapeBCAnual(calculos, anos):
 			for aba in valoresDic:
 				df[tabs[aba] + '-' + calc] = valoresDic[aba] + [criadaEm]
 
+		print('Coleta de BC Anual ' + calc + 's OK.')
 		driver.back()
 		time.sleep(1)
 
@@ -430,6 +437,7 @@ def scrapeBPAnual(calculos, anos):
 			for aba in valoresDic:
 				df[tabs[aba] + '-' + calc] = valoresDic[aba] + [criadaEm]
 
+		print('Coleta de BP Anual ' + calc + 's OK.')
 		driver.back()
 		time.sleep(1)
 
@@ -438,8 +446,8 @@ def scrapeBPAnual(calculos, anos):
 
 #Execução
 
-site = "https://www3.bcb.gov.br/expectativas/publico/consulta/serieestatisticas"
-driver = webdriver.Firefox() #Firefox() ou PhantomJS()
+site = 'https://www3.bcb.gov.br/expectativas/publico/consulta/serieestatisticas'
+driver = webdriver.PhantomJS() #Firefox() ou PhantomJS()
 driver.get(site)
 
 #cria lista de anos c/ ano atual e 4 anos à frente
