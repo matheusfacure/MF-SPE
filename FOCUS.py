@@ -365,7 +365,7 @@ def scrapeBCAnual(calculos, anos):
 	tabs = {'Aba1':'Exportações', 'Aba2':'Importações', 'Aba3':'Saldo'}
 
 	# prepara data frame
-	df = pd.DataFrame(index = anos, columns = [])
+	df = pd.DataFrame(index = anos + ['Criada em'], columns = [])
 	df = df.fillna(0)
 	
 	for calc in calculos:
@@ -374,9 +374,9 @@ def scrapeBCAnual(calculos, anos):
 		time.sleep(0.7) #previne bugs por internet lenta
 		
 		for tab in tabs:
-			valoresDic = getValues(driver.page_source, 3)[0]
+			valoresDic, criadaEm = getValues(driver.page_source, 3)
 			for aba in valoresDic:
-				df[tabs[aba] + '-' + calc] = valoresDic[aba]
+				df[tabs[aba] + '-' + calc] = valoresDic[aba] + [criadaEm]
 
 		driver.back()
 	
@@ -400,7 +400,7 @@ def scrapeBPAnual(calculos, anos):
 	tabs = {'Aba1':'Conta Corrente', 'Aba2':'IDP'}
 
 	# prepara data frame
-	df = pd.DataFrame(index = anos, columns = [])
+	df = pd.DataFrame(index = anos + ['Criada em'], columns = [])
 	df = df.fillna(0)
 	
 	for calc in calculos:
@@ -409,9 +409,9 @@ def scrapeBPAnual(calculos, anos):
 		time.sleep(0.7) #previne bugs por internet lenta
 		
 		for tab in tabs:
-			valoresDic = getValues(driver.page_source, 2)[0]
+			valoresDic, criadaEm = getValues(driver.page_source, 2)
 			for aba in valoresDic:
-				df[tabs[aba] + '-' + calc] = valoresDic[aba]
+				df[tabs[aba] + '-' + calc] = valoresDic[aba] + [criadaEm]
 
 		driver.back()
 	
@@ -485,10 +485,10 @@ setores = {'Agropecuaria':'#grupoPib\:opcoes_0',
 #arquivo = 'Focus (Produção Industrial)'
 #industria.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
-time.sleep(1)
-fiscal = scrapeFiscalAnual(calculos[0:3], anos)
-arquivo = 'Focus (Fiscal)'
-fiscal.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+#time.sleep(1)
+#fiscal = scrapeFiscalAnual(calculos[0:3], anos)
+#arquivo = 'Focus (Fiscal)'
+#fiscal.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
 #time.sleep(1)
 #BC = scrapeBCAnual(calculos[0:3], anos)
@@ -496,8 +496,8 @@ fiscal.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 #BC.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
 #time.sleep(1)
-#BP = scrapeBPAnual(calculos[0:3], anos)
-#arquivo = 'Focus (Balança de Pagamentos)'
-#BP.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+BP = scrapeBPAnual(calculos[0:3], anos)
+arquivo = 'Focus (Balança de Pagamentos)'
+BP.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
 #driver.close()
