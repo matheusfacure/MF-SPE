@@ -244,7 +244,7 @@ def scrapePIBAnual(setores, calculos, anos):
 	for setor in setores:
 		
 		# prepara data frame
-		df = pd.DataFrame(index = anos, columns = calculos)
+		df = pd.DataFrame(index = anos + ['Criada em'], columns = calculos)
 		df = df.fillna(0)
 
 		for calc in calculos:
@@ -253,15 +253,16 @@ def scrapePIBAnual(setores, calculos, anos):
 			driver.find_element_by_css_selector('#btnConsultar8').click() # ir
 
 			time.sleep(0.7) #previne bugs por internet lenta
-			source = driver.page_source
+
+			valueList, criadaEm = getValues(driver.page_source)
+			valueList.append(criadaEm)
 			
 			# se o tamanho do vetor de preço e da matriz divergir
-			if(len(df[calc]) > len(anos)):
-				diff = len(df[calc] - len(valueList))
-				for n in range(0, diff):
-					valueList.append(0)
-			else:
-				df[calc] = getValues(source)[0]
+			if(len(df[calc]) > len(valueList)):
+				for n in range(0, len(df[calc]) - len(valueList)):
+					valueList.append('')
+			
+			df[calc] = valueList
 
 			driver.back()
 			time.sleep(0.7)
@@ -439,12 +440,12 @@ calculos = ['Mínimo', 'Mediana', 'Máximo', 'Média', 'Desvio padrão']
 
 # cria dicionário de IPs
 IPs = {'IGP-DI':'#grupoIndicePreco\:opcoes_0', 
-	'IGP-M':'#grupoIndicePreco\:opcoes_1'} 
-#	'INPC':'#grupoIndicePreco\:opcoes_2', 
-#	'IPA-DI':'#grupoIndicePreco\:opcoes_3',
-#	'IPA-M':'#grupoIndicePreco\:opcoes_4',  
-#	'IPCA':'#grupoIndicePreco\:opcoes_5', 
-#	'IPCA-15':'#grupoIndicePreco\:opcoes_6'}
+	'IGP-M':'#grupoIndicePreco\:opcoes_1',
+	'INPC':'#grupoIndicePreco\:opcoes_2', 
+	'IPA-DI':'#grupoIndicePreco\:opcoes_3',
+	'IPA-M':'#grupoIndicePreco\:opcoes_4',  
+	'IPCA':'#grupoIndicePreco\:opcoes_5', 
+	'IPCA-15':'#grupoIndicePreco\:opcoes_6'}
 
 # cria dicionário de setores do PIBs
 setores = {'Agropecuaria':'#grupoPib\:opcoes_0',
@@ -461,18 +462,18 @@ setores = {'Agropecuaria':'#grupoPib\:opcoes_0',
 #	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
 #time.sleep(1)
-ipsMensal = scrapeIPsMensal(IPs, calculos[0:3], meses, anos)
-for df in ipsMensal:
-	df_ip = ipsMensal[df]
-	arquivo = 'Focus (' + df + '-Mensal)'
-	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+#ipsMensal = scrapeIPsMensal(IPs, calculos[0:3], meses, anos)
+#for df in ipsMensal:
+#	df_ip = ipsMensal[df]
+#	arquivo = 'Focus (' + df + '-Mensal)'
+#	df_ip.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
 #time.sleep(1)
-#PIBAnual = scrapePIBAnual(setores, calculos, anos)
-#for df in PIBAnual:
-#	df_pib = PIBAnual[df]
-#	arquivo = 'Focus (PIB-' + df + '-Anual)'
-#	df_pib.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
+PIBAnual = scrapePIBAnual(setores, calculos, anos)
+for df in PIBAnual:
+	df_pib = PIBAnual[df]
+	arquivo = 'Focus (PIB-' + df + '-Anual)'
+	df_pib.to_csv(arquivo + ".csv", sep = ';', date_format = '%Y', index = True)
 
 #time.sleep(1)
 #ac12MesesSuav =  scrapeIPsAc12MesesSuav(IPs, calculos[0:3])
