@@ -83,7 +83,7 @@ def scrapeIPsAnual(IPs, calculos, anos):
 		# prepara data frame
 		df = pd.DataFrame(index = anos + ['Feito em'], columns = calculos)
 		df = df.fillna(0)
-		
+
 		for calc in calculos:
 			driver.find_element_by_css_selector(IPs[ip]).click()
 			select('#calculo', calc)
@@ -92,13 +92,13 @@ def scrapeIPsAnual(IPs, calculos, anos):
 			time.sleep(0.7) #previne bugs por internet lenta
 			source = driver.page_source
 			valueList, dataDeCriacao = getValues(source)
-			valueList.append(dataDeCriacao)
 			
 			# se o tamanho do vetor de preço e da matriz divergir
 			if(len(df[calc]) > len(valueList)):
-				for n in range(0, len(df[calc]) - len(valueList)):
+				for n in range(0, len(df[calc]) - len(valueList) - 1):
 					valueList.append('')
-			
+
+			valueList.append(dataDeCriacao)
 			df[calc] = valueList
 			print('Coleta de ' + ip + ' Anual ' + calc + ' OK.')
 
@@ -447,7 +447,7 @@ def scrapeBPAnual(calculos, anos):
 #Execução
 
 site = 'https://www3.bcb.gov.br/expectativas/publico/consulta/serieestatisticas'
-driver = webdriver.PhantomJS() #Firefox() ou PhantomJS()
+driver = webdriver.Firefox() #Firefox() ou PhantomJS()
 driver.get(site)
 
 #cria lista de anos c/ ano atual e 4 anos à frente
