@@ -92,16 +92,15 @@ def scrapeIPsAnual(IPs, calculos, anos):
 			time.sleep(0.7) #previne bugs por internet lenta
 			source = driver.page_source
 			valueList, dataDeCriacao = getValues(source)
-			
+
 			# se o tamanho do vetor de preço e da matriz divergir
-			if(len(df[calc]) > len(valueList)):
-				for n in range(0, len(df[calc]) - len(valueList) - 1):
-					valueList.append('')
+			for n in range(0, len(df[calc]) - len(valueList) - 1):
+				valueList.append('')
 
 			valueList.append(dataDeCriacao)
 			df[calc] = valueList
 			print('Coleta de ' + ip + ' Anual ' + calc + ' OK.')
-
+			
 			driver.back()
 			time.sleep(0.7)
 			driver.find_element_by_css_selector(IPs[ip]).click() #limpa seleção
@@ -209,13 +208,12 @@ def scrapeIPsMensal(IPs, calculos, meses, anos):
 			time.sleep(0.7) #previne bugs por internet lenta
 			
 			valueList, criadaEm = getValues(driver.page_source)
-			valueList.append(criadaEm)
 
 			# se o tamanho do vetor de preço e da matriz divergir
-			if(len(df[calc]) > len(valueList)):
-				for n in range(0, len(df[calc]) - len(valueList)):
-					valueList.append('')
+			for n in range(0, len(df[calc]) - len(valueList) - 1):
+				valueList.append('')
 			
+			valueList.append(criadaEm)
 			df[calc] = valueList
 			print('Coleta de ' + ip + ' Mensal ' + calc + ' OK.')
 
@@ -256,13 +254,12 @@ def scrapePIBAnual(setores, calculos, anos):
 			time.sleep(0.7) #previne bugs por internet lenta
 
 			valueList, criadaEm = getValues(driver.page_source)
-			valueList.append(criadaEm)
 			
 			# se o tamanho do vetor de preço e da matriz divergir
-			if(len(df[calc]) > len(valueList)):
-				for n in range(0, len(df[calc]) - len(valueList)):
-					valueList.append('')
+			for n in range(0, len(df[calc]) - len(valueList) - 1):
+				valueList.append('')
 			
+			valueList.append(criadaEm)
 			df[calc] = valueList
 			print('Coleta de PIB ' + setor + ' Anual ' + calc + ' OK.')
 
@@ -297,14 +294,15 @@ def scrapeIndustriaAnual(calculos, anos):
 		time.sleep(0.7)
 		
 		valueList, criadaEm = getValues(driver.page_source)
+
+		# se o tamanho da df e do vetor divergirem
+		for n in range(0, len(df[calc]) - len(valueList) - 1):
+			valueList.append('')
+
 		valueList.append(criadaEm)
-
-		if len(valueList) < len(df[calc]):
-			for n in range(0, len(df[calc]) - len(valueList)):
-				valores.append('')
-
 		df[calc] = valueList
 		print('Coleta de Industrial Anual ' + calc + ' OK.')
+		
 		driver.back()
 	
 	return df.T
@@ -329,12 +327,12 @@ def scrapeMonitoradosAnual(calculos, anos):
 		time.sleep(0.7)
 		
 		valueList, criadaEm = getValues(driver.page_source)
+		
+		# se to damanho da df e do vetor divergir
+		for n in range(0, len(df[calc]) - len(valueList) - 1):
+			valueList.append('')
+
 		valueList.append(criadaEm)
-
-		if len(valueList) < len(df[calc]):
-			for n in range(0, len(df[calc]) - len(valueList)):
-				valores.append('')
-
 		df[calc] = valueList
 		print('Coleta de Monitorado Anual ' + calc + ' OK.')
 
@@ -355,7 +353,7 @@ def scrapeFiscalAnual(calculos, anos):
 	#dicinário de tabs 
 	tabs = {'Aba1':'Resultado Primário',
 		'Aba2':'Resultado Nominal',
-		'Aba3':'Dívida Líquida',}
+		'Aba3':'Dívida Líquida'}
 
 	# prepara data frame
 	df = pd.DataFrame(index = anos + ['Criada em'], columns = [])
@@ -369,6 +367,11 @@ def scrapeFiscalAnual(calculos, anos):
 		valoresDic, criadaEm = getValues(driver.page_source, 3)
 		for tab in tabs:
 			for aba in valoresDic:
+
+				# se o tamanho do vetor e da df divergirem
+				for n in range(0, len(df) - len(valoresDic[aba]) - 1):
+					valoresDic[aba].append('')
+
 				df[tabs[aba] + '-' + calc] = valoresDic[aba] + [criadaEm]
 
 		print('Coleta de Fiscal Anual ' + calc + 's OK.')
@@ -402,6 +405,11 @@ def scrapeBCAnual(calculos, anos):
 		valoresDic, criadaEm = getValues(driver.page_source, 3)
 		for tab in tabs:
 			for aba in valoresDic:
+				
+				# se o tamanho do vetor e da df divergirem
+				for n in range(0, len(df) - len(valoresDic[aba]) - 1):
+					valoresDic[aba].append('')
+
 				df[tabs[aba] + '-' + calc] = valoresDic[aba] + [criadaEm]
 
 		print('Coleta de BC Anual ' + calc + 's OK.')
@@ -435,6 +443,11 @@ def scrapeBPAnual(calculos, anos):
 		valoresDic, criadaEm = getValues(driver.page_source, 2)
 		for tab in tabs:
 			for aba in valoresDic:
+
+				# se o tamanho do vetor e da df divergirem
+				for n in range(0, len(df) - len(valoresDic[aba]) - 1):
+					valoresDic[aba].append('')
+
 				df[tabs[aba] + '-' + calc] = valoresDic[aba] + [criadaEm]
 
 		print('Coleta de BP Anual ' + calc + 's OK.')
